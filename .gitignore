@@ -1,2 +1,5 @@
 target/
 /javamoney-src/
+/.classpath
+/.project
+/.settings
