@@ -1,9 +1,11 @@
-package ckrecom
+package plus.coding.ckrecom
 
 import java.math.BigDecimal
-import javax.money._
+import Tax.TaxSystem
 
 trait PriceService {
+  
+  implicit val mc: java.math.MathContext
 
   /** Returns the real net price for the product,
    *  considering also context information like
@@ -16,7 +18,7 @@ trait PriceService {
   def priceFor(
     product: Product,
     qty: BigDecimal = new BigDecimal(1)
-  ): MonetaryAmount
+  ): BigDecimal
 
   /** Returns the real gross price for the product.
    *
@@ -29,7 +31,7 @@ trait PriceService {
   def grossPriceFor(
     product: Product,
     qty: BigDecimal = new BigDecimal(1)
-  )(implicit taxsystem: TaxSystem): MonetaryAmount
+  )(implicit taxsystem: TaxSystem): BigDecimal
 }
 
 class DefaultPriceService extends PriceService {
@@ -41,16 +43,16 @@ class DefaultPriceService extends PriceService {
   def priceFor(
     product: Product,
     qty: BigDecimal = new BigDecimal(1)
-  ): MonetaryAmount = {
+  ): BigDecimal = {
     product.netPrice
   }
 
   def grossPriceFor(
     product: Product,
     qty: BigDecimal = new BigDecimal(1)
-  )(implicit taxsystem: TaxSystem): MonetaryAmount = {
-    val rate = taxsystem.taxFor(product.taxClass)
-    product.netPrice.multiply(rate.num).divide(rate.denum)
+  )(implicit taxsystem: TaxSystem): BigDecimal = {
+    val rate = taxsystem(product.taxClass)
+    rate.grossAmount(product.netPrice)
   }
 
 }

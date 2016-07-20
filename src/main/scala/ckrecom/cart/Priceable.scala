@@ -1,11 +1,12 @@
-package ckrecom.cart
+package plus.coding.ckrecom.cart
 
-import ckrecom.{Product}
+import plus.coding.ckrecom.{Product}
 import java.math.BigDecimal
-import javax.money.MonetaryAmount
+import javax.money.{MonetaryAmount, CurrencyUnit}
 import org.javamoney.moneta.Money
 
 trait Priceable {
+  def canCurrency(c: CurrencyUnit): Boolean
 }
 
 object Priceable {

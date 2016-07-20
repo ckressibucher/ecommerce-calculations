@@ -1,27 +1,29 @@
-package ckrecom
+package plus.coding.ckrecom
 
-import javax.money._
+import scala.math.Numeric
+import Tax.TaxClass
+import java.math.{BigDecimal => JavaBigDec}
 
 trait Product {
 
-  type ProductId
-
-  val id: ProductId
-
-  /** Returns the base net price for this article.
+  /**
+   * Returns the base net price for this article.
    */
-  def netPrice: MonetaryAmount
+  def netPrice: JavaBigDec
 
   def taxClass: TaxClass
 }
 
-case class SimpleProduct(
-  id: String,
-  netPrice: MonetaryAmount,
-  taxClass: TaxClass,
-  name: String) extends Product {
+object Product {
 
-  type ProductId = String
+  case class SimpleProduct[T](
+      id: String,
+      netPrice: T,
+      taxClass: TaxClass,
+      name: String) extends Product {
+
+  }
 }
+
 
 

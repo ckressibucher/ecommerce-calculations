@@ -1,6 +1,9 @@
-package ckrecom
+package plus.coding.ckrecom
 
 import scala.math.Numeric
+import scala.collection.immutable._
+import java.math.BigDecimal
+import Tax.TaxClass
 
 package object cart {
 
@@ -9,20 +12,7 @@ package object cart {
   case object PRICE_GROSS extends PRICE_MODE
 
   /** A function which updates a cart with some calculations */
-  type CartCalculator = (Cart[_,_,_] => Cart[_,_,_])
-
-  object Testit {
-    type A = (String, String)
-    type B[X] = (X, String)
-    type C[Y <: String] = (Y, Int)
-    def ho[T: Numeric](z: T): String = {
-      val n = implicitly[Numeric[T]]
-      val two = n.fromInt(2)
-      n.times(z, two).toString
-    }
-    type Tp[T] = (T, String)
-    def ha[A: Numeric](z: Tp[A]) = z._1
-  }
+  type CartCalculator = (Cart[_] => Cart[_])
 
   /** A price used in the cart.
     * 
@@ -37,7 +27,7 @@ package object cart {
     * so you may want to constrain it to have a
     * Numeric implementation whenever you use it.
     */
-  type TaxedPrice[T] = (T, TaxClass)
+  type TaxedPrice = (BigDecimal, TaxClass)
 
   /** Used to define the contents of a cart.
     *
@@ -45,6 +35,6 @@ package object cart {
     * a shipping fee, or a discount; togehter with a list of
     * calculated prices resulting from this thing.
     */
-  type CartContentItem[T] = (Priceable, Seq[TaxedPrice[T]])
+  type CartContentItem = (Priceable, Seq[TaxedPrice])
 
 }
