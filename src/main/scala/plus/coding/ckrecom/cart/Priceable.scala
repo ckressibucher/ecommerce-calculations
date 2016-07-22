@@ -1,12 +1,19 @@
 package plus.coding.ckrecom.cart
 
-import plus.coding.ckrecom.{Product}
+import plus.coding.ckrecom.{Product, PRICE_MODE}
 import java.math.BigDecimal
 import javax.money.{MonetaryAmount, CurrencyUnit}
-import org.javamoney.moneta.Money
+import org.javamoney.moneta.CurrencyUnitBuilder
+import scala.collection.immutable._
 
+/**
+ * A Priceable is something that, together with a CartCalculator,
+ * can produce a final price which goes into the totals sum.
+ * 
+ * As a library user, it's your responsibility to provide a
+ * CartCalculator for each of the Priceable's you use.
+ */
 trait Priceable {
-  def canCurrency(c: CurrencyUnit): Boolean
 }
 
 object Priceable {

@@ -4,12 +4,9 @@ import scala.math.Numeric
 import scala.collection.immutable._
 import java.math.BigDecimal
 import Tax.TaxClass
+import scala.util.Try
 
 package object cart {
-
-  sealed trait PRICE_MODE
-  case object PRICE_NET extends PRICE_MODE
-  case object PRICE_GROSS extends PRICE_MODE
 
   /** A function which updates a cart with some calculations */
   type CartCalculator = (Cart[_] => Cart[_])
@@ -32,9 +29,9 @@ package object cart {
   /** Used to define the contents of a cart.
     *
     * Can be something like a cart line of product and quantity,
-    * a shipping fee, or a discount; togehter with a list of
+    * a shipping fee, or a discount; together with a list of
     * calculated prices resulting from this thing.
     */
-  type CartContentItem = (Priceable, Seq[TaxedPrice])
+  case class CartContentItem(val p: Priceable, finalPrices: Either[String, Seq[TaxedPrice]])
 
 }
