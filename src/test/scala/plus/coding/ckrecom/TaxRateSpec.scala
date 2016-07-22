@@ -1,4 +1,5 @@
-import plus.coding.ckrecom.TaxRate
+package plus.coding.ckrecom
+
 import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import org.scalatest._
