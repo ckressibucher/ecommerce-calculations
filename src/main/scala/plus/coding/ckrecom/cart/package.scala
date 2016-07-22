@@ -9,7 +9,7 @@ import scala.util.Try
 package object cart {
 
   /** A function which updates a cart with some calculations */
-  type CartCalculator = (Cart[_] => Cart[_])
+  type CartCalculator = (Cart => Cart)
 
   /** A price used in the cart.
     * 
@@ -25,13 +25,5 @@ package object cart {
     * Numeric implementation whenever you use it.
     */
   type TaxedPrice = (BigDecimal, TaxClass)
-
-  /** Used to define the contents of a cart.
-    *
-    * Can be something like a cart line of product and quantity,
-    * a shipping fee, or a discount; together with a list of
-    * calculated prices resulting from this thing.
-    */
-  case class CartContentItem(val p: Priceable, finalPrices: Either[String, Seq[TaxedPrice]])
 
 }

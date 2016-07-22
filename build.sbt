@@ -10,13 +10,16 @@ resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositor
 
 libraryDependencies ++= Seq(
     "org.scalatest"     %% "scalatest" 	     			   % "2.2.6" % "test",
-    "javax.money"       % "money-api"                % "1.0",
-    "org.javamoney"     % "moneta"                   % "1.1"
+    "javax.money"       % "money-api"                % "1.0"
     //"org.joda"          % "joda-money"       % "0.11"
     // "joda-time"          % "joda-time"       % "2.4",
     //"org.reactivemongo" %% "reactivemongo"   			   % "0.11.7",
     //"org.reactivemongo" %% "reactivemongo-extensions-bson" % "0.11.7.play24",
     //"com.typesafe"	 	 % "config" 		 			   % "1.3.0"
+)
+
+libraryDependencies in Test ++= Seq(
+    "org.javamoney"     % "moneta"                   % "1.1"
 )
 
 initialCommands in console := """

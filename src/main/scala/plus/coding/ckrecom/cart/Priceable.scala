@@ -1,9 +1,8 @@
 package plus.coding.ckrecom.cart
 
-import plus.coding.ckrecom.{Product, PRICE_MODE}
+import plus.coding.ckrecom.{Product, PriceMode}
 import java.math.BigDecimal
 import javax.money.{MonetaryAmount, CurrencyUnit}
-import org.javamoney.moneta.CurrencyUnitBuilder
 import scala.collection.immutable._
 
 /**
@@ -27,5 +26,5 @@ object Priceable {
   case class Shipping(key: String) extends Priceable {}
 
   /** A fixed-amount fee (amount is either a gross or net value) */
-  case class Fee(amount: MonetaryAmount, mode: PRICE_MODE) extends Priceable {}
+  case class Fee(amount: MonetaryAmount, mode: PriceMode) extends Priceable {}
 }

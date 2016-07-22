@@ -3,7 +3,7 @@ package plus.coding.ckrecom
 import java.math.BigDecimal
 import Tax.TaxSystem
 import javax.money.CurrencyUnit
-import scala.util.{Try}
+import scala.util.Try
 
 /** Responsible to determine the final price for a product.
  */
