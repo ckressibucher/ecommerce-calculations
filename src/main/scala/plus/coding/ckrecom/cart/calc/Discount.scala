@@ -7,45 +7,44 @@ import Priceable._
 import java.math.BigDecimal
 import javax.money.CurrencyUnit
 import scala.collection.immutable._
-import scala.util.{Try, Failure, Success}
+import scala.util.{ Try, Failure, Success }
 
-class Discount extends CartCalculator {
-  
-  def apply(c: Cart): Cart = {
+class FixedDiscountCalc extends ItemCalc[FixedDiscount] {
+
+  def apply(c: Cart, disc: FixedDiscount): Try[Seq[TaxedPrice]] = {
+    val price = (disc.amount.negate(), Tax.FreeTax) // TODO use tax class from products...
+    Success(Seq(price))
+  }
+
+}
+
+class PctDiscountCalc extends ItemCalc[PctDiscount] {
+
+  def apply(c: Cart, disc: PctDiscount): Try[Seq[TaxedPrice]] = {
     val productPricesByTaxClass = pricesByTaxClass(c)
     val totalAmount = productPricesByTaxClass.map(_._2).foldLeft(BigDecimal.ZERO) { _.add(_, c.mc) }
-    val newContents = c.contents.map {
-      case i @ CartContentItem(FixedDiscount(code, amount), _) => {
-        val price = (amount.negate(), Tax.FreeTax) // TODO use tax class from products...
-        i.copy(finalPrices = Success(Seq(price)))
+
+    val prices = productPricesByTaxClass.toList map {
+      case (taxClass, tcTotal) => {
+        val discAmount = tcTotal.multiply(new BigDecimal(disc.pct)).divide(new BigDecimal(100))
+        (discAmount.negate(), taxClass)
       }
-      case i @ CartContentItem(PctDiscount(code, pct),  _) => {
-        val prices = productPricesByTaxClass.toList map { _ match {
-          case (taxClass, tcTotal) => {
-            val disc = tcTotal.multiply(new BigDecimal(pct)).divide(new BigDecimal(100))
-            (disc.negate(), taxClass)
-          }
-        }}
-        i.copy(finalPrices = Success(prices))
-      }
-      case i => i
     }
-    c.copy(contents = newContents)(mc = c.mc)
+    Success(prices)
   }
- 
+
   /** Analyzes the final prices of all `Line` items, and builds a map TaxClass -> Summed amounts */
   def pricesByTaxClass(cart: Cart): Map[Tax.TaxClass, BigDecimal] = {
     val init = Map[Tax.TaxClass, BigDecimal]()
-    cart.contents.foldLeft(init) { (acc, item) => item match {
-      case CartContentItem(Line(_, _), Success(prices)) => {
-        prices.foldLeft(acc) { (accLine, p) => p match {
-          case (amnt, taxCls) => {
+    cart.contents.foldLeft(init) {
+      case (acc, CartContentItem(Line(_, _), Success(prices))) =>
+        prices.foldLeft(acc) {
+          case (accLine, (amnt, taxCls)) => {
             val newAmount = accLine.getOrElse(taxCls, BigDecimal.ZERO).add(amnt, cart.mc)
             accLine.updated(taxCls, newAmount)
           }
-        }}
-      }
-      case _ => acc 
-    }}
+        }
+      case (acc, _) => acc
+    }
   }
 }

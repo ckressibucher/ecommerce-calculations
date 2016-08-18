@@ -6,11 +6,8 @@ import javax.money.{MonetaryAmount, CurrencyUnit}
 import scala.collection.immutable._
 
 /**
- * A Priceable is something that, together with a CartCalculator,
+ * A Priceable is something that, together with an ItemCalc,
  * can produce a final price which goes into the totals sum.
- * 
- * As a library user, it's your responsibility to provide a
- * CartCalculator for each of the Priceable's you use.
  */
 trait Priceable {
 }
@@ -33,5 +30,5 @@ object Priceable {
   case class Shipping(key: String) extends Priceable {}
 
   /** A fixed-amount fee (amount is either a gross or net value) */
-  case class Fee(amount: MonetaryAmount, mode: PriceMode) extends Priceable {}
+  case class Fee(amount: MonetaryAmount, mode: PriceMode.Value) extends Priceable {}
 }

@@ -8,9 +8,6 @@ import scala.util.Try
 
 package object cart {
 
-  /** A function which updates a cart with some calculations */
-  type CartCalculator = (Cart => Cart)
-
   /** A price used in the cart.
     * 
     * The cart has a defined currency,
@@ -20,9 +17,6 @@ package object cart {
     * (the given numeric value represents the
     * type defined for the cart's mode).
     *
-    * Note that T is expected to be a numeric type,
-    * so you may want to constrain it to have a
-    * Numeric implementation whenever you use it.
     */
   type TaxedPrice = (BigDecimal, TaxClass)
 

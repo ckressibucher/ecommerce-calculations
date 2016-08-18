@@ -22,6 +22,8 @@ trait CartTestHelper {
     case FreeTax => TaxRate(0, 100)
     case SimpleTax(_) => TaxRate(10, 100)
   }
+  
+  def bigDec(value: String): BigDecimal = new BigDecimal(value)
 
   /** Sums up the totals of the cart.
    *  
@@ -41,17 +43,7 @@ trait CartTestHelper {
       acc.add(itemSum, mc)
     }
   }
-  
-  def buildSimpleCart(ps: List[(Product, Int)])(implicit mc: MathContext): Cart = {
-    val contents = ps map {
-      case (p, qty) => {
-        val line = Priceable.Line(p, new BigDecimal(qty))
-        CartContentItem(line, initFinalPrice)
-      }
-    }
-    new Cart(contents, usdollar, PRICE_NET)
-  }
-  
+
   def buildSimpleProduct(price: String, tc: TaxClass): Product = {
     val p = Map(usdollar -> new BigDecimal(price))
     SimpleProduct(p, tc)

@@ -11,33 +11,39 @@ object Cart {
 
   import plus.coding.ckrecom.Implicits.mathContext
 
-  /** Processes the cart with the given calculater and checks for errors.
+  /** Checks if the cart contains failed price calculations.
    *  
-   *  The given calculator is supposed to calculate the final prices for
-   *  all cart items. It is typically composed of multiple sub calculators
-   *  which are responsible for a specific type of cart item.
-   *  
-   *  If the resulting list is empty, the cart is valid (with the given calculator)
+   *  Returns a list of errors (or an empty list if the cart is valid).
    */
-  def validate(cart: Cart, calculator: CartCalculator): Seq[Throwable] = {
-    val finalCart = calculator(cart)
-    cart.contents.foldRight(Seq.empty[Throwable]) {(i: CartContentItem, errs: Seq[Throwable]) => {
-      i.finalPrices match {
-        case Success(_) => errs
-        case Failure(e) => e +: errs
+  def validate(cart: Cart): Seq[Throwable] = {
+    cart.contents.foldRight(Seq.empty[Throwable]) {
+      case (CartContentItem(_, Success(_)), errs) => errs
+      case (CartContentItem(_, Failure(e)), errs) => e +: errs
+    }
+  }
+  
+  /**
+   * Builds a cart from a sequence of not-yet-calculated items, currency and tax price mode.
+   */
+  def apply[T <: CartItemPre[_]](cur: CurrencyUnit, mode: PriceMode.Value, preItems: Seq[T])(implicit mc: MathContext): Cart = {
+    val cart = new Cart(Seq.empty, cur, mode)(mc)
+    preItems.foldLeft(cart) {
+      case (c: Cart, CartItemPre(priceable, calc)) => {
+        val prices = calc(c, priceable)
+        c.addContent(CartContentItem(priceable, prices))
       }
-    }}
+    }
   }
 
 }
 
-/** The main cart class
+/** The main cart class. Represents a cart with already calculated prices.
   *
   */
 case class Cart(
   val contents: Seq[CartContentItem],
   val currency: CurrencyUnit,
-  val mode: PriceMode
+  val mode: PriceMode.Value
 )(implicit val mc: MathContext) {
 
   // mainly for debugging, as we don't have
@@ -53,13 +59,7 @@ case class Cart(
    *  update a cart.
    */
   def addContent(item: CartContentItem): Cart = {
-    new Cart(contents :+ item, currency, mode)
-  }
-  
-  def addPriceable(p: Priceable): Cart = {
-    // TODO more specific exception...
-    val prices: Try[Seq[TaxedPrice]] = Failure(new RuntimeException("not yet calculated"))
-    addContent(CartContentItem(p, prices))
+    new Cart(contents :+ item, currency, mode)(mc)
   }
   
   /** Calculates the grand total of the current cart state.
