@@ -26,7 +26,8 @@ class PctDiscountCalc(val priceable: PctDiscount) extends CartItemPre[PctDiscoun
 
     val prices = productPricesByTaxClass.toList map {
       case (taxClass, tcTotal) => {
-        val discAmount = tcTotal.multiply(new BigDecimal(priceable.pct)).divide(new BigDecimal(100))
+        val pct100 = new BigDecimal("100")
+        val discAmount = tcTotal.multiply(new BigDecimal(priceable.pct)).divide(pct100)
         (discAmount.negate(), taxClass)
       }
     }

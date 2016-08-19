@@ -1,12 +1,12 @@
 package plus.coding.ckrecom
 
-import java.math.{BigDecimal, MathContext}
+import java.math.{ BigDecimal, MathContext }
 
 // TODO use scala's BigDecimal instead??
 // not sure how MathContext works there...
 case class TaxRate(num: Int, denom: Int) {
   require(denom != 0)
-  
+
   private val numBigDec = new BigDecimal(num)
   private val denomBigDec = new BigDecimal(denom)
 
@@ -27,8 +27,7 @@ case class TaxRate(num: Int, denom: Int) {
     grossAmount.subtract(taxValueFromGross(grossAmount), mc)
   }
 
-  override def toString = {
+  override def toString: String = {
     "%d/%d".format(num, denom)
   }
 }
-
