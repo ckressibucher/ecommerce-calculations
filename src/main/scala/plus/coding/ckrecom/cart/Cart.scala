@@ -27,10 +27,10 @@ object Cart {
    */
   def apply[T <: CartItemPre[_]](cur: CurrencyUnit, mode: PriceMode.Value, preItems: Seq[T])(implicit mc: MathContext): Cart = {
     val cart = new Cart(Seq.empty, cur, mode)(mc)
-    preItems.foldLeft(cart) {
-      case (c: Cart, CartItemPre(priceable, calc)) => {
-        val prices = calc(c, priceable)
-        c.addContent(CartContentItem(priceable, prices))
+    (cart /: preItems) {
+      case (c: Cart, item: CartItemPre[_]) => {
+        val prices = item.finalPrices(c)
+        c.addContent(CartContentItem(item.priceable, prices))
       }
     }
   }

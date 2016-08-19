@@ -9,24 +9,24 @@ import javax.money.CurrencyUnit
 import scala.collection.immutable._
 import scala.util.{ Try, Failure, Success }
 
-class FixedDiscountCalc extends ItemCalc[FixedDiscount] {
+class FixedDiscountCalc(val priceable: FixedDiscount) extends CartItemPre[FixedDiscount] {
 
-  def apply(c: Cart, disc: FixedDiscount): Try[Seq[TaxedPrice]] = {
-    val price = (disc.amount.negate(), Tax.FreeTax) // TODO use tax class from products...
+  def finalPrices(c: Cart): Try[Seq[TaxedPrice]] = {
+    val price = (priceable.amount.negate(), Tax.FreeTax) // TODO use tax class from products of the cart...
     Success(Seq(price))
   }
 
 }
 
-class PctDiscountCalc extends ItemCalc[PctDiscount] {
+class PctDiscountCalc(val priceable: PctDiscount) extends CartItemPre[PctDiscount] {
 
-  def apply(c: Cart, disc: PctDiscount): Try[Seq[TaxedPrice]] = {
+  def finalPrices(c: Cart): Try[Seq[TaxedPrice]] = {
     val productPricesByTaxClass = pricesByTaxClass(c)
     val totalAmount = productPricesByTaxClass.map(_._2).foldLeft(BigDecimal.ZERO) { _.add(_, c.mc) }
 
     val prices = productPricesByTaxClass.toList map {
       case (taxClass, tcTotal) => {
-        val discAmount = tcTotal.multiply(new BigDecimal(disc.pct)).divide(new BigDecimal(100))
+        val discAmount = tcTotal.multiply(new BigDecimal(priceable.pct)).divide(new BigDecimal(100))
         (discAmount.negate(), taxClass)
       }
     }

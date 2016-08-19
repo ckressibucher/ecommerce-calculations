@@ -14,28 +14,28 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
   implicit val mc = java.math.MathContext.DECIMAL32
   implicit val taxsystem = taxSystemZeroOr10Pct
   
-  lazy val lineSumCalc = new LineSum(new TestPriceService)
+  def lineSumCalc(line: Line) = new LineCalc(line, new TestPriceService)
   
   "The FixedDiscount calculator" should "subtract a fixed amount" in {
     val fixedDisc = Priceable.FixedDiscount("ten-less", bigDec("10"))
-    val calculator = new FixedDiscountCalc
+    val calculator = new FixedDiscountCalc(fixedDisc)
         
     val cart = Cart(usdollar, PriceMode.PRICE_NET, Seq.empty[CartItemPre[Priceable]])
-    calculator(cart, fixedDisc) should be(Success(Seq((bigDec("-10"), Tax.FreeTax))))
+    calculator.finalPrices(cart) should be(Success(Seq((bigDec("-10"), Tax.FreeTax))))
   }
   
   "The PercentageDiscount calculator" should "apply percentage prices per tax class" in {
     val disc = Priceable.PctDiscount("ten-pct", 10)
-    val calculator = new PctDiscountCalc
+    val calculator = new PctDiscountCalc(disc)
     
     val products = List(
         Line(buildSimpleProduct("100", FreeTax), bigDec("1")),
         Line(buildSimpleProduct("100", SimpleTax("")), bigDec("1")))
-    val preItems: List[CartItemPre[Line]] = products map { CartItemPre(_, lineSumCalc) }
+    val preItems: List[CartItemPre[Line]] = products map { lineSumCalc(_) }
         
     val cart = Cart(usdollar, PriceMode.PRICE_NET, preItems)
                 
-    val discPrices = calculator(cart, disc)
+    val discPrices = calculator.finalPrices(cart)
     val expectedPrices = Seq( (bigDec("-10"), FreeTax), (bigDec("-10"), SimpleTax("")) )
     discPrices should be(Success(expectedPrices))
   }

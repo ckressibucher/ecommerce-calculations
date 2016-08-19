@@ -9,11 +9,11 @@ import scala.collection.immutable._
 import scala.util.{ Try, Failure, Success }
 import java.math.MathContext
 
-class LineSum(val priceService: PriceService) extends ItemCalc[Line] {
+class LineCalc(val priceable: Line, val priceService: PriceService) extends CartItemPre[Line] {
 
-  def apply(c: Cart, line: Line): Try[Seq[TaxedPrice]] = {
-    calc(line.product, line.qty, c.currency, c.mode, c.mc) map { p: BigDecimal =>
-      Seq((p, line.product.taxClass))
+  def finalPrices(c: Cart): Try[Seq[TaxedPrice]] = {
+    calc(priceable.product, priceable.qty, c.currency, c.mode, c.mc) map { p: BigDecimal =>
+      Seq((p, priceable.product.taxClass))
     }
   }
 

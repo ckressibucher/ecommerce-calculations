@@ -13,8 +13,6 @@ trait CartTestHelper {
 
   val usdollar = Monetary.getCurrency("USD")
 
-  val initFinalPrice: Try[Seq[TaxedPrice]] = Failure(new RuntimeException("not yet calculated"))
-
   /** A taxsystem that always returns 10 percent tax rate */
   val taxSystem10Pct: Tax.TaxSystem = (tc: TaxClass) => TaxRate(10, 100)
 
