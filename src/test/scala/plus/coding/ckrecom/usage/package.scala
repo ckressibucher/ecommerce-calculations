@@ -8,6 +8,7 @@ import scala.collection.immutable.Seq
 
 package object usage {
 
+  type TaxCls = TaxSystem.DefaultTaxClass
   implicit val taxSystem = TaxSystem.DefaultTaxSystem
   import Implicits.mathContext
 

@@ -6,6 +6,8 @@ import javax.money.Monetary
 import plus.coding.ckrecom.cart._
 import plus.coding.ckrecom.cart.Priceable._
 import plus.coding.ckrecom.cart.calc._
+import plus.coding.ckrecom.tax.TaxSystem
+import scala.collection.immutable.Seq
 
 object UsageExample extends App {
 
@@ -14,6 +16,8 @@ object UsageExample extends App {
   val usDollar = Monetary.getCurrency("USD")
 
   implicit def intToBigDec(v: Int): BigDecimal = new BigDecimal(v)
+
+  implicit val mathContext: java.math.MathContext = java.math.MathContext.DECIMAL128
 
   // We start with defining some articles:
   val chair = Article("chair", 80 * 100) // a chair with a price of 80 USD
@@ -31,14 +35,21 @@ object UsageExample extends App {
 
   // The prices are not fetched directly from the articles, but are using a price service, which
   // may apply additional rules to the basic prices.
-  //val priceService = defaultPriceService
+  val priceService = DefaultPriceService
 
   // === Building a cart ====================
 
-  // To build a cart, we have to define an item calculator for each item (articles, discounts, ..).
+  // To build a cart, we have to define an "item calculator" for each item (articles, discounts, ..).
   // Note: The order of lines is important for some kinds of lines, as they may
   // depend on previously defined lines. In our example, it is important that the articles
   // are defined before the percentage discount.
+  val preCalculatedItems: Seq[CartItemPre[_, TaxCls]] = lines map { l: Line[TaxCls] => new LineCalc(l, priceService) }
+  val preCalculatedDiscs: Seq[CartItemPre[_, TaxCls]] = Seq(
+    new FixedDiscountCalc(fixedDiscount, TaxSystem.FreeTax),
+    new PctDiscountCalc(percentageDiscount))
 
-  //val preCalculatedItems = lines map { LineCalc(_,) }
+  val cart: Cart[TaxCls] = Cart(preCalculatedItems ++ preCalculatedDiscs, usDollar, PriceMode.PRICE_GROSS)
+
+  // Now we have a cart with calculated items, i.e. for each line, we have a calculated
+  println(cart)
 }

@@ -10,7 +10,8 @@ import plus.coding.ckrecom.tax.TaxSystem
 
 object Cart {
 
-  /** Builds a cart from a sequence of not-yet-calculated items, currency and tax price mode.
+  /** Builds a cart from a sequence of not-yet-calculated items (`CartItemPre` instances),
+    * currency and tax price mode.
     */
   def apply[T <: CartItemPre[_, U], U: TaxSystem](preItems: Seq[T], cur: CurrencyUnit, mode: PriceMode.Value)(implicit mc: MathContext): Cart[U] = {
     val cart = new Cart(cur, mode, Seq.empty)
