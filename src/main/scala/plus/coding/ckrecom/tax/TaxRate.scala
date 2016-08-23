@@ -1,9 +1,7 @@
-package plus.coding.ckrecom
+package plus.coding.ckrecom.tax
 
 import java.math.{ BigDecimal, MathContext }
 
-// TODO use scala's BigDecimal instead??
-// not sure how MathContext works there...
 case class TaxRate(num: Int, denom: Int) {
   require(denom != 0)
 
@@ -27,7 +25,20 @@ case class TaxRate(num: Int, denom: Int) {
     grossAmount.subtract(taxValueFromGross(grossAmount), mc)
   }
 
+  /** Compares this tax rate with another one.
+    * Returns -1 if this rate is less than the other, 0 if both
+    * are equal, and 1 if this rate is greater.
+    */
+  def compare(other: TaxRate): Int = {
+    val x = num.toLong * other.denom.toLong - other.num.toLong * denom.toLong
+    x.signum
+  }
+
   override def toString: String = {
     "%d/%d".format(num, denom)
   }
+}
+
+object TaxRate {
+  def free: TaxRate = new TaxRate(0, 100)
 }

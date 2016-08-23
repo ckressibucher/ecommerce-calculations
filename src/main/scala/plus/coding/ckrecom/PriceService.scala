@@ -1,16 +1,13 @@
 package plus.coding.ckrecom
 
 import java.math.BigDecimal
-import Tax.TaxSystem
-import javax.money.CurrencyUnit
 import scala.util.Try
+import javax.money.CurrencyUnit
+import plus.coding.ckrecom.tax.TaxSystem
 
 /** Responsible to determine the final price for a product.
   */
-trait PriceService {
-
-  implicit val mc: java.math.MathContext
-  implicit val taxsystem: TaxSystem
+abstract class PriceService[T: TaxSystem] {
 
   /** Returns the real net price for the product,
     * considering also context information like
@@ -22,7 +19,7 @@ trait PriceService {
     *
     * The request may fail, e.g. if the currency is not supported.
     */
-  def priceFor(product: Product, cur: CurrencyUnit, qty: BigDecimal = new BigDecimal(1)): Try[BigDecimal]
+  def priceFor(product: Product[T], cur: CurrencyUnit, qty: BigDecimal = new BigDecimal(1)): Try[BigDecimal]
 
   /** Returns the real gross price for the product.
     *
@@ -34,5 +31,5 @@ trait PriceService {
     *
     * The request may fail, e.g. if the currency is not supported.
     */
-  def grossPriceFor(product: Product, cur: CurrencyUnit, qty: BigDecimal = new BigDecimal(1)): Try[BigDecimal]
+  def grossPriceFor(product: Product[T], cur: CurrencyUnit, qty: BigDecimal = new BigDecimal(1)): Try[BigDecimal]
 }

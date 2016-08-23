@@ -1,7 +1,7 @@
 package plus.coding.ckrecom
 
-import Tax.TaxClass
-import java.math.{ BigDecimal => JavaBigDec }
+import tax.TaxSystem
+import java.math.BigDecimal
 import javax.money.CurrencyUnit
 import scala.collection.immutable._
 import scala.math.Numeric
@@ -14,14 +14,21 @@ import scala.math.Numeric
   * Important: it's not intended to define a gross Price in a product,
   * to not depend on a tax system. The gross price can be calculated
   * by a PriceService.
+  *
+  * @tparam T type of a taxclass
   */
-trait Product {
+abstract class Product[T: TaxSystem] {
 
   /** Returns the base net price for this article.
     */
-  def netPrice(cur: CurrencyUnit): Option[JavaBigDec]
+  def netPrice(cur: CurrencyUnit): Option[BigDecimal]
 
-  def taxClass: TaxClass
+  /** The tax class defined for this product.
+    */
+  def taxClass: T
 
+  /** Returns a list of currencies for which a price is defined
+    * (or can be calculated somehow)
+    */
   def currencies: Seq[CurrencyUnit]
 }

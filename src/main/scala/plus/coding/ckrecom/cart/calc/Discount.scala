@@ -8,19 +8,27 @@ import java.math.BigDecimal
 import javax.money.CurrencyUnit
 import scala.collection.immutable._
 import scala.util.{ Try, Failure, Success }
+import plus.coding.ckrecom.tax.TaxSystem
+import scala.util.Failure
 
-class FixedDiscountCalc(val priceable: FixedDiscount) extends CartItemPre[FixedDiscount] {
+/** Applies a fixed discount, using the cheapest tax class of any of the products in cart (or the fallbackTaxClass when no
+  * products are in the cart).
+  */
+class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount[T], fallbackTaxClass: T) extends CartItemPre[FixedDiscount[T], T] with PriceCalculations {
 
-  def finalPrices(c: Cart): Try[Seq[TaxedPrice]] = {
-    val price = (priceable.amount.negate(), Tax.FreeTax) // TODO use tax class from products of the cart...
+  def finalPrices(c: Cart[T]): PriceResult[T] = {
+    val taxClass = cheapestTaxClass(c).getOrElse(fallbackTaxClass)
+    val price = TaxedPrice(priceable.amount.negate(), taxClass)
     Success(Seq(price))
   }
 
 }
 
-class PctDiscountCalc(val priceable: PctDiscount) extends CartItemPre[PctDiscount] {
+// TODO Fixed discounts with distributed tax classes, or a fixed tax class
 
-  def finalPrices(c: Cart): Try[Seq[TaxedPrice]] = {
+class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount[T]) extends CartItemPre[PctDiscount[T], T] with PriceCalculations {
+
+  def finalPrices(c: Cart[T]): Try[Seq[TaxedPrice[T]]] = {
     val productPricesByTaxClass = pricesByTaxClass(c)
     val totalAmount = productPricesByTaxClass.map(_._2).foldLeft(BigDecimal.ZERO) { _.add(_, c.mc) }
 
@@ -28,24 +36,10 @@ class PctDiscountCalc(val priceable: PctDiscount) extends CartItemPre[PctDiscoun
       case (taxClass, tcTotal) => {
         val pct100 = new BigDecimal("100")
         val discAmount = tcTotal.multiply(new BigDecimal(priceable.pct)).divide(pct100)
-        (discAmount.negate(), taxClass)
+        TaxedPrice(discAmount.negate(), taxClass)
       }
     }
     Success(prices)
   }
 
-  /** Analyzes the final prices of all `Line` items, and builds a map TaxClass -> Summed amounts */
-  def pricesByTaxClass(cart: Cart): Map[Tax.TaxClass, BigDecimal] = {
-    val init = Map[Tax.TaxClass, BigDecimal]()
-    cart.contents.foldLeft(init) {
-      case (acc, CartContentItem(Line(_, _), Success(prices))) =>
-        prices.foldLeft(acc) {
-          case (accLine, (amnt, taxCls)) => {
-            val newAmount = accLine.getOrElse(taxCls, BigDecimal.ZERO).add(amnt, cart.mc)
-            accLine.updated(taxCls, newAmount)
-          }
-        }
-      case (acc, _) => acc
-    }
-  }
 }
