@@ -6,8 +6,8 @@ import Priceable._
 import scala.util.{ Success }
 import scala.collection.immutable.Seq
 import java.math.BigDecimal
-import plus.coding.ckrecom.tax.TaxSystem
 import scala.util.Success
+import plus.coding.ckrecom.tax.TaxRate
 
 /** A helper for price calculations.
   */
@@ -42,7 +42,7 @@ trait PriceCalculations {
       case (acc @ Some(accCls), tcls) => {
         val rateAcc = taxSystem.rate(accCls)
         val rateNew = taxSystem.rate(tcls)
-        if (rateAcc.compare(rateNew) < 0) acc else (Some(tcls))
+        if (rateAcc < rateNew) acc else (Some(tcls))
       }
     }
   }

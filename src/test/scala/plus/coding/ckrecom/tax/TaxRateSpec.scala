@@ -42,8 +42,8 @@ class TaxRateSpec extends FlatSpec with Matchers {
     val cheap = TaxRate(10, 100)
     val expensive = TaxRate(2, 10)
     val otherExpensive = TaxRate(20, 100)
-    cheap.compare(expensive) should be(-1)
-    expensive.compare(cheap) should be(1)
-    otherExpensive.compare(expensive) should be(0)
+    (cheap < expensive) should be(true)
+    (expensive > cheap) should be(true)
+    (otherExpensive compare expensive) should be(0)
   }
 }
