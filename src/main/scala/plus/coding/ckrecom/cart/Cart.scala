@@ -7,13 +7,17 @@ import scala.collection.immutable.Seq
 import scala.util.{ Try, Success, Failure }
 import plus.coding.ckrecom.tax.{ TaxRate, TaxSystem }
 import plus.coding.ckrecom.tax.TaxSystem
+import plus.coding.ckrecom.cart.calc.PriceCalculations
+import java.math.RoundingMode
 
 object Cart {
 
   /** Builds a cart from a sequence of not-yet-calculated items (`CartItemPre` instances),
     * currency and tax price mode.
+    *
+    * (this is not named `apply` to avoid overloaded methods to help debugging)
     */
-  def apply[T <: CartItemPre[_, U], U: TaxSystem](preItems: Seq[T], cur: CurrencyUnit, mode: PriceMode.Value)(implicit mc: MathContext): Cart[U] = {
+  def fromItems[T <: CartItemPre[_, U], U: TaxSystem](preItems: Seq[T], cur: CurrencyUnit, mode: PriceMode.Value)(implicit mc: MathContext): Cart[U] = {
     val cart = new Cart(cur, mode, Seq.empty)
     (cart /: preItems) {
       case (c: Cart[U], item: CartItemPre[_, _]) => {
@@ -25,9 +29,10 @@ object Cart {
 
 }
 
-abstract class CartBase[T: TaxSystem] {
+abstract class CartBase[T: TaxSystem] extends PriceCalculations {
 
   implicit val mc: MathContext
+  val taxSystem = implicitly[TaxSystem[T]]
 
   case class Contents[T](cs: Seq[CartContentItem[T]])
 
@@ -48,6 +53,19 @@ abstract class CartBase[T: TaxSystem] {
     }
   }
 
+  def taxes(rounding: RoundingMode = RoundingMode.HALF_UP): TaxTotals[T] = {
+    allPricesByTaxClass(this) map {
+      case (taxCls, price) => {
+        val rate = taxSystem.rate(taxCls)
+        val newPrice = mode match {
+          case PriceMode.PRICE_GROSS => rate.taxValueFromGross(price)
+          case PriceMode.PRICE_NET   => rate.taxValue(price)
+        }
+        (taxCls, newPrice.setScale(0, rounding).longValue())
+      }
+    }
+  }
+
   /** Calculates the grand total of the cart.
     */
   def grandTotal(): Long = {
@@ -61,12 +79,6 @@ abstract class CartBase[T: TaxSystem] {
     } yield priceAmnts.sum
     itemSums.sum
   }
-
-  // TODO calculate taxes
-  def taxes(): BigDecimal = ???
-
-  // TODO calculate amount per tax class
-  def valueByTaxClass: Map[T, (TaxRate, BigDecimal)] = ???
 }
 
 /** The main cart class. Represents a cart with already calculated prices.
@@ -88,13 +100,19 @@ case class Cart[T: TaxSystem](
     copy(contents = contents ++ Seq(item))
   }
 
+  /** Returns a string describing the contents of this object.
+    */
   def debugString: String = {
-    val title = "Debugging cart:\n===============\n"
-    val cur = "Currency: " ++ currency.toString() + '\n'
-    val pMode = "Price mode: " ++ mode.toString() + '\n'
+    val title = "Debugging cart:\n==============="
+    val cur = "Currency: " ++ currency.toString()
+    val pMode = "Price mode: " ++ mode.toString()
     val contentStr = ("contents:\n---------\n" /: contents) {
       case (acc, item) => acc ++ (" - " ++ item.toString + '\n')
     }
-    title ++ cur ++ pMode ++ contentStr // TODO use some concatenation / sequencing function instead...
+    val taxesStr = ("Taxes:\n------------\n" /: taxes()) {
+      case (acc, (cls, amnt)) => acc ++ (cls.toString ++ " : " ++ amnt.toString() + '\n')
+    }
+    val totalSum = "Total: " ++ grandTotal().toString()
+    List(title, cur, pMode, contentStr, taxesStr, totalSum).mkString("\n")
   }
 }

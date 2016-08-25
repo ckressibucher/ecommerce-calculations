@@ -13,9 +13,15 @@ case class TaxRate(num: Int, denom: Int) {
     netAmount.multiply(numBigDec, mc).divide(denomBigDec, mc)
   }
 
+  def taxValue(netAmount: Long)(implicit mc: MathContext): BigDecimal =
+    taxValue(new BigDecimal(netAmount))
+
   def taxValueFromGross(grossAmount: BigDecimal)(implicit mc: MathContext): BigDecimal = {
     grossAmount.multiply(numBigDec, mc).divide(denomBigDec.add(numBigDec, mc), mc)
   }
+
+  def taxValueFromGross(grossAmount: Long)(implicit mc: MathContext): BigDecimal =
+    taxValueFromGross(new BigDecimal(grossAmount))
 
   /** Returns the gross amount corresponding to the given net amount */
   def grossAmount(netAmount: BigDecimal)(implicit mc: MathContext): BigDecimal = {

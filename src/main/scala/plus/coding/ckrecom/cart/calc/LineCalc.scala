@@ -17,7 +17,7 @@ class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService[T
 
   val taxSystem = implicitly[TaxSystem[T]]
 
-  def finalPrices(c: Cart[T]): PriceResult[T] = {
+  def finalPrices(c: CartBase[T]): PriceResult[T] = {
     val priceTry = calc(line.product, line.qty, c.currency, c.mode, c.mc)
     // round the price and wrap it into the required PriceResult structure
     priceTry map { p: BigDecimal => TaxedPrice(rounding(p), line.product.taxClass) :: Nil }

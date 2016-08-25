@@ -19,5 +19,5 @@ abstract class CartItemPre[P <: Priceable[T], T: TaxSystem] {
 
   /** Calculates final prices for this item
     */
-  def finalPrices(cart: Cart[T]): PriceResult[T]
+  def finalPrices(cart: CartBase[T]): PriceResult[T]
 }

@@ -8,6 +8,8 @@ import plus.coding.ckrecom.tax.TaxSystem
 
 package object cart {
 
+  class CalculationException(msg: String, prev: Throwable = null) extends RuntimeException(msg, prev)
+
   /** A price used in the cart.
     *
     * The cart has a defined currency,
@@ -26,4 +28,6 @@ package object cart {
   type PriceResult[T] = Try[Seq[TaxedPrice[T]]]
 
   case class CartContentItem[T: TaxSystem](priceable: Priceable[T], results: PriceResult[T])
+
+  type TaxTotals[T] = Map[T, Long]
 }

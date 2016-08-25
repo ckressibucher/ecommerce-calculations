@@ -40,7 +40,7 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
       Line(buildSimpleProduct[T]("100", SimpleTax(1, 10)), bigDec("1")))
     val preItems: Seq[CartItemPre[Line[T], T]] = products map { lineSumCalc(_) }
 
-    val cart = Cart[CartItemPre[_, T], T](preItems, usdollar, PriceMode.PRICE_NET)
+    val cart = Cart.fromItems[CartItemPre[_, T], T](preItems, usdollar, PriceMode.PRICE_NET)
 
     val discPrices = calculator.finalPrices(cart)
     val expectedPrices = Seq(TaxedPrice[T](bigDec("-10"), FreeTax), TaxedPrice[T](bigDec("-10"), SimpleTax(1, 10)))

@@ -53,8 +53,14 @@ object UsageExample extends App {
     new FixedDiscountCalc(fixedDiscount, TaxSystem.FreeTax),
     new PctDiscountCalc(percentageDiscount))
 
-  val cart: Cart[TaxCls] = Cart(preCalculatedItems ++ preCalculatedDiscs, usDollar, PriceMode.PRICE_GROSS)
+  val cart: Cart[TaxCls] = Cart.fromItems(preCalculatedItems ++ preCalculatedDiscs, usDollar, PriceMode.PRICE_GROSS)
 
   // Now we have a cart with calculated items, i.e. for each line, we have a calculated
-  println(cart.debugString)
+  cart.validate match {
+    case Nil => println(cart.debugString)
+    case errs => {
+      println("The cart could not be calculated successfully. Errors:")
+      errs.foreach { x => println(x.getMessage) }
+    }
+  }
 }
