@@ -11,14 +11,14 @@ class TaxRateSpec extends FlatSpec with Matchers {
   import TaxRate.TaxRateOrdering
   import TaxRate.TaxRateOrdering.{ Ops, mkOrderingOps }
 
-  "A TaxRate" should "take an numerator and denumerator" in {
+  "A TaxRate" should "take an numerator and denominator" in {
     val tr = TaxRate(10, 100)
     tr.toString should be("10/100")
   }
 
   it should "not accept denominator of zero" in {
     intercept[IllegalArgumentException] {
-      TaxRate(10, 0) // zero denumerator..
+      TaxRate(10, 0) // zero denominator..
     }
   }
 

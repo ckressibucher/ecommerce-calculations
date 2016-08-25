@@ -7,9 +7,9 @@ import java.math.{ BigDecimal, RoundingMode, MathContext }
   */
 trait Rounding extends (BigDecimal => Long)
 
-class RoundingImpl(scale: Int, roundingMode: RoundingMode) extends Rounding {
+class RoundingImpl(roundingMode: RoundingMode) extends Rounding {
   def apply(in: BigDecimal): Long = {
-    in.setScale(scale, roundingMode).longValue()
+    in.setScale(0, roundingMode).longValue()
   }
 }
 
@@ -21,16 +21,15 @@ class RoundingToFive(roundingMode: RoundingMode)(implicit val mc: MathContext) e
 
     in.divide(five)
       .setScale(0, roundingMode)
-      .multiply(five)
-      .longValue()
+      .longValue() * 5
   }
 }
 
 object Rounding {
 
-  val defaultRounding = new RoundingImpl(0, RoundingMode.HALF_UP)
+  val defaultRounding = new RoundingImpl(RoundingMode.HALF_UP)
 
-  val alwaysUp = new RoundingImpl(0, RoundingMode.CEILING)
+  val alwaysUp = new RoundingImpl(RoundingMode.CEILING)
 
   // rounds to a multiple of 5, e.g. for swiss francs/ rappen, using FLOOR rounding
   // mode (so a price of 99 cents gets 95 cents)

@@ -14,7 +14,7 @@ import scala.util.{ Try, Failure, Success }
 import Priceable.Line
 import TaxSystem._
 
-class LineSumSpec extends FlatSpec with Matchers with CartTestHelper {
+class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
 
   implicit val mc = java.math.MathContext.DECIMAL32
   implicit val rounding = Rounding.defaultRounding
