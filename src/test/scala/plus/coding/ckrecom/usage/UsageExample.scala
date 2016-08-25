@@ -9,6 +9,10 @@ import plus.coding.ckrecom.cart.calc._
 import plus.coding.ckrecom.tax.TaxSystem
 import scala.collection.immutable.Seq
 
+/** Usage example how to create and calculate a cart.
+  *
+  * This example can be run with sbt using `sbt test:run`.
+  */
 object UsageExample extends App {
 
   import scala.language.implicitConversions
@@ -18,16 +22,17 @@ object UsageExample extends App {
   implicit def intToBigDec(v: Int): BigDecimal = new BigDecimal(v)
 
   implicit val mathContext: java.math.MathContext = java.math.MathContext.DECIMAL128
+  implicit val rounding = Rounding.defaultRounding
 
   // We start with defining some articles:
-  val chair = Article("chair", 80 * 100) // a chair with a price of 80 USD
+  val chair = Article("chair", 80 * 100) // a chair with a price of 80 USD (net price!)
   val table = Article("table", 250 * 100) // a table, 250 USD
 
   // We also have a discount of 10 %.
   val percentageDiscount = PctDiscount("give me 10 %", 10)
 
   // .. and additionally a fixed discount or 20 USD
-  val fixedDiscount = FixedDiscount("20 dollar less", 20)
+  val fixedDiscount = FixedDiscount("20 dollar less", 2000)
 
   // Next, we create cart lines by defining quantities for each product we want to buy
   // (1 table and 4 chairs)
@@ -51,5 +56,5 @@ object UsageExample extends App {
   val cart: Cart[TaxCls] = Cart(preCalculatedItems ++ preCalculatedDiscs, usDollar, PriceMode.PRICE_GROSS)
 
   // Now we have a cart with calculated items, i.e. for each line, we have a calculated
-  println(cart)
+  println(cart.debugString)
 }

@@ -14,6 +14,9 @@ class TaxRateSpec extends FlatSpec with Matchers {
   "A TaxRate" should "take an numerator and denumerator" in {
     val tr = TaxRate(10, 100)
     tr.toString should be("10/100")
+  }
+
+  it should "not accept denominator of zero" in {
     intercept[IllegalArgumentException] {
       TaxRate(10, 0) // zero denumerator..
     }

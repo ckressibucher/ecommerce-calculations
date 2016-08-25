@@ -21,7 +21,8 @@ trait PriceCalculations {
       case (acc, Success(prices)) =>
         prices.foldLeft(acc) {
           case (accLine, TaxedPrice(amnt, taxCls)) => {
-            val newAmount = accLine.getOrElse(taxCls, BigDecimal.ZERO).add(amnt, cart.mc)
+            val current = accLine.getOrElse(taxCls, BigDecimal.ZERO)
+            val newAmount = current.add(new BigDecimal(amnt), cart.mc)
             accLine.updated(taxCls, newAmount)
           }
         }

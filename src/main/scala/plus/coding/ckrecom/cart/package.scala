@@ -18,7 +18,7 @@ package object cart {
     * type defined for the cart's mode).
     *
     */
-  case class TaxedPrice[T: TaxSystem](price: BigDecimal, taxClass: T)
+  case class TaxedPrice[T: TaxSystem](price: Long, taxClass: T)
 
   /** The result of a price calculation, which uses
     * the `TaxClass` defined here.

@@ -14,6 +14,7 @@ import TaxSystem._
 class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
 
   implicit val mc = java.math.MathContext.DECIMAL32
+  implicit val rounding = Rounding.defaultRounding
 
   def lineSumCalc[T: TaxSystem](line: Line[T]) = new LineCalc(line, new TestPriceService)
 

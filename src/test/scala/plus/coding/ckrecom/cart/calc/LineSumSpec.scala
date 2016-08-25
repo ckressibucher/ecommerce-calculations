@@ -17,6 +17,7 @@ import TaxSystem._
 class LineSumSpec extends FlatSpec with Matchers with CartTestHelper {
 
   implicit val mc = java.math.MathContext.DECIMAL32
+  implicit val rounding = Rounding.defaultRounding
 
   def lineSumCalculator[T: TaxSystem](line: Line[T]): LineCalc[T] =
     new LineCalc(line, new TestPriceService)
@@ -33,7 +34,7 @@ class LineSumSpec extends FlatSpec with Matchers with CartTestHelper {
     }
 
     val cart = Cart[CartItemPre[_, T], T](lineItems, usdollar, PriceMode.PRICE_NET)
-    sumTotals(cart) should be(new BigDecimal("150"))
+    sumTotals(cart) should be(150L)
   }
 
   it should "add taxes if cart mode is PRICE_GROSS" in {
@@ -56,6 +57,6 @@ class LineSumSpec extends FlatSpec with Matchers with CartTestHelper {
     val preItems: List[CartItemPre[_, T]] = products map { lineSumCalculator(_) }
 
     val cart = Cart[CartItemPre[_, T], T](preItems, usdollar, PriceMode.PRICE_GROSS)
-    sumTotals(cart) should be(new BigDecimal("255"))
+    sumTotals(cart) should be(255L)
   }
 }

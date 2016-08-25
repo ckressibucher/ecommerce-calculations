@@ -50,10 +50,7 @@ abstract class CartBase[T: TaxSystem] {
 
   /** Calculates the grand total of the cart.
     */
-  def grandTotal(): BigDecimal = {
-    def sum(xs: Seq[BigDecimal]): BigDecimal = {
-      xs.foldLeft(BigDecimal.ZERO)(_.add(_, mc))
-    }
+  def grandTotal(): Long = {
     val itemSums = for {
       item <- contents
       prices = item.results match {
@@ -61,8 +58,8 @@ abstract class CartBase[T: TaxSystem] {
         case Success(ps) => ps
       }
       priceAmnts = prices.map(_.price)
-    } yield sum(priceAmnts)
-    sum(itemSums)
+    } yield priceAmnts.sum
+    itemSums.sum
   }
 
   // TODO calculate taxes
@@ -89,5 +86,15 @@ case class Cart[T: TaxSystem](
     */
   def addContent(item: CartContentItem[T]): Cart[T] = {
     copy(contents = contents ++ Seq(item))
+  }
+
+  def debugString: String = {
+    val title = "Debugging cart:\n===============\n"
+    val cur = "Currency: " ++ currency.toString() + '\n'
+    val pMode = "Price mode: " ++ mode.toString() + '\n'
+    val contentStr = ("contents:\n---------\n" /: contents) {
+      case (acc, item) => acc ++ (" - " ++ item.toString + '\n')
+    }
+    title ++ cur ++ pMode ++ contentStr // TODO use some concatenation / sequencing function instead...
   }
 }

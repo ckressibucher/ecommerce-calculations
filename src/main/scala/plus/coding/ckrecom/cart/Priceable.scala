@@ -22,7 +22,7 @@ object Priceable {
   case class Line[T: TaxSystem](product: Product[T], qty: BigDecimal) extends Priceable[T]
 
   /** A discount code */
-  case class FixedDiscount[T: TaxSystem](code: String, amount: BigDecimal) extends Priceable[T]
+  case class FixedDiscount[T: TaxSystem](code: String, amount: Long) extends Priceable[T]
 
   /** A discount as percentage of the product prices
     *

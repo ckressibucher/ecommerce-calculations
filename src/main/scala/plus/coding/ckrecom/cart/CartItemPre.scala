@@ -8,7 +8,8 @@ import plus.coding.ckrecom.tax.TaxSystem
 /** A priceable together with the definition how to calculate final prices.
   *
   * A list of those "pre cart items" together with a cart definition should be
-  * enough to calculate the cart.
+  * enough to calculate the cart. The resulting prices are later used as the
+  * base for further calculations like discounts or taxes.
   */
 abstract class CartItemPre[P <: Priceable[T], T: TaxSystem] {
 

@@ -18,7 +18,7 @@ class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount[T], fallbackT
 
   def finalPrices(c: Cart[T]): PriceResult[T] = {
     val taxClass = cheapestTaxClass(c).getOrElse(fallbackTaxClass)
-    val price = TaxedPrice(priceable.amount.negate(), taxClass)
+    val price = TaxedPrice(-1 * priceable.amount, taxClass)
     Success(Seq(price))
   }
 
@@ -26,7 +26,7 @@ class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount[T], fallbackT
 
 // TODO Fixed discounts with distributed tax classes, or a fixed tax class
 
-class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount[T]) extends CartItemPre[PctDiscount[T], T] with PriceCalculations {
+class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount[T])(implicit rounding: Rounding) extends CartItemPre[PctDiscount[T], T] with PriceCalculations {
 
   def finalPrices(c: Cart[T]): Try[Seq[TaxedPrice[T]]] = {
     val productPricesByTaxClass = pricesByTaxClass(c)
@@ -36,7 +36,7 @@ class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount[T]) extends CartI
       case (taxClass, tcTotal) => {
         val pct100 = new BigDecimal("100")
         val discAmount = tcTotal.multiply(new BigDecimal(priceable.pct)).divide(pct100)
-        TaxedPrice(discAmount.negate(), taxClass)
+        TaxedPrice(rounding(discAmount.negate()), taxClass)
       }
     }
     Success(prices)

@@ -33,17 +33,13 @@ trait CartTestHelper {
     * Useful to verify calculation logic in tests.
     * Ignores failed or not yet calculated final item prices.
     */
-  def sumTotals[T: TaxSystem](cart: Cart[T])(implicit mc: MathContext): BigDecimal = {
-    // helper method to sum up a sequence of BigDecimal values
-    def sum(xs: Seq[BigDecimal]): BigDecimal =
-      xs.foldLeft(BigDecimal.ZERO)(_.add(_, mc))
-
-    cart.contents.foldLeft(BigDecimal.ZERO) { (acc: BigDecimal, item: CartContentItem[T]) =>
+  def sumTotals[T: TaxSystem](cart: Cart[T])(implicit mc: MathContext): Long = {
+    cart.contents.foldLeft(0L) { (acc: Long, item: CartContentItem[T]) =>
       def itemSum = item.results match {
-        case Success(ps) => sum(ps.map(_.price))
-        case Failure(_)  => BigDecimal.ZERO
+        case Success(ps) => ps.map(_.price).sum
+        case Failure(_)  => 0L
       }
-      acc.add(itemSum, mc)
+      acc + itemSum
     }
   }
 
