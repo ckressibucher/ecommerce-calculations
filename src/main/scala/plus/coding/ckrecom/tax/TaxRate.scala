@@ -2,7 +2,7 @@ package plus.coding.ckrecom.tax
 
 import java.math.{ BigDecimal, MathContext }
 
-case class TaxRate(num: Int, denom: Int) extends Ordered[TaxRate] {
+case class TaxRate(num: Int, denom: Int) {
   require(denom != 0)
 
   private val numBigDec = new BigDecimal(num)
@@ -26,11 +26,6 @@ case class TaxRate(num: Int, denom: Int) extends Ordered[TaxRate] {
     grossAmount.subtract(taxValueFromGross(grossAmount), mc)
   }
 
-  def compare(other: TaxRate): Int = {
-    val res = num.toLong * other.denom.toLong - other.num.toLong * denom.toLong
-    res.signum
-  }
-
   override def toString: String = {
     "%d/%d".format(num, denom)
   }
@@ -38,4 +33,11 @@ case class TaxRate(num: Int, denom: Int) extends Ordered[TaxRate] {
 
 object TaxRate {
   def free: TaxRate = new TaxRate(0, 100)
+
+  implicit object TaxRateOrdering extends Ordering[TaxRate] {
+    override def compare(x: TaxRate, y: TaxRate): Int = {
+      val res = x.num.toLong * y.denom.toLong - y.num.toLong * x.denom.toLong
+      res.signum
+    }
+  }
 }

@@ -8,6 +8,9 @@ class TaxRateSpec extends FlatSpec with Matchers {
 
   implicit val mc = java.math.MathContext.DECIMAL64
 
+  import TaxRate.TaxRateOrdering
+  import TaxRate.TaxRateOrdering.{ Ops, mkOrderingOps }
+
   "A TaxRate" should "take an numerator and denumerator" in {
     val tr = TaxRate(10, 100)
     tr.toString should be("10/100")
@@ -44,6 +47,6 @@ class TaxRateSpec extends FlatSpec with Matchers {
     val otherExpensive = TaxRate(20, 100)
     (cheap < expensive) should be(true)
     (expensive > cheap) should be(true)
-    (otherExpensive compare expensive) should be(0)
+    (otherExpensive equiv expensive) should be(true)
   }
 }

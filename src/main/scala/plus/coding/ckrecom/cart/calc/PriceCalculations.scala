@@ -29,7 +29,9 @@ trait PriceCalculations {
     }
   }
 
-  def cheapestTaxClass[T: TaxSystem](cart: Cart[T]): Option[T] = {
+  def cheapestTaxClass[T: TaxSystem](cart: Cart[T])(implicit ord: Ordering[TaxRate]): Option[T] = {
+    import ord.{ Ops, mkOrderingOps }
+
     val lnPrices = linePrices(cart)
     val taxSystem = implicitly[TaxSystem[T]]
     val ts: Seq[T] = (lnPrices.collect {
