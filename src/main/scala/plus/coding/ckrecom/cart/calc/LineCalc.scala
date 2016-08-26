@@ -12,26 +12,25 @@ import java.math.MathContext
 
 /** Calculate the final prices for an item line using a price service.
   */
-class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService[T])(implicit val rounding: Rounding) extends CartItemPre[Line[T], T] {
+class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService)(implicit val rounding: Rounding) extends CartItemPre[Line[T], T] {
+
   val priceable = line
 
   val taxSystem = implicitly[TaxSystem[T]]
 
   def finalPrices(c: CartBase[T]): PriceResult[T] = {
-    val priceTry = calc(line.product, line.qty, c.currency, c.mode, c.mc)
-    // round the price and wrap it into the required PriceResult structure
-    priceTry map { p: BigDecimal => TaxedPrice(rounding(p), line.product.taxClass) :: Nil }
-  }
-
-  /** Calculates one BigDecimal amount for the given product in the given quantity.
-    */
-  private def calc(product: Product[T], qty: BigDecimal, cur: CurrencyUnit, mode: PriceMode.Value, mc: MathContext): Try[BigDecimal] = {
-    val singlePrice = mode match {
+    // price for qty == 1
+    val singlePrice = c.mode match {
       case PriceMode.PRICE_NET =>
-        priceService.priceFor(product, cur, qty)
+        priceService.priceFor(line.product, c.currency, line.qty)(taxSystem, c.mc)
       case PriceMode.PRICE_GROSS =>
-        priceService.grossPriceFor(product, cur, qty)
+        priceService.grossPriceFor(line.product, c.currency, line.qty)(taxSystem, c.mc)
     }
-    singlePrice.map(_.multiply(qty))
+
+    // price for the whole line
+    val linePrice = singlePrice.map(_.multiply(line.qty))
+
+    // round the price and wrap it into the required PriceResult structure
+    linePrice map { p: BigDecimal => TaxedPrice(rounding(p), line.product.taxClass) :: Nil }
   }
 }

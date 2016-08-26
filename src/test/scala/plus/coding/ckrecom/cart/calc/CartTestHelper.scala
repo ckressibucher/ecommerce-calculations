@@ -48,20 +48,8 @@ trait CartTestHelper {
     SimpleProduct(p, tc)
   }
 
-  /** A basic implementation of a price service: It just returns the price defined in the product */
-  class TestPriceService[T: TaxSystem](implicit val mc: MathContext) extends PriceService {
-    val taxsystem = implicitly[TaxSystem[T]]
-    def priceFor(product: Product[T], cur: CurrencyUnit, qty: BigDecimal = new BigDecimal(1)): Try[BigDecimal] = {
-      product.netPrice(cur) match {
-        case Some(p) => new Success(p)
-        case None    => new Failure(throw new RuntimeException("no price found"))
-      }
-    }
-
-    def grossPriceFor(product: Product[T], cur: CurrencyUnit, qty: BigDecimal): Try[BigDecimal] = {
-      val rate = taxsystem.rate(product.taxClass)
-      priceFor(product, cur) map { rate.grossAmount(_) }
-    }
+  /** Concrete class for PriceService trait */
+  class TestPriceService[T: TaxSystem] extends PriceService {
   }
 
   /** The most basic implementation of a Product */

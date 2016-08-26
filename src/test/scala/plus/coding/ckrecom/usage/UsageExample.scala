@@ -40,7 +40,7 @@ object UsageExample extends App {
 
   // The prices are not fetched directly from the articles, but are using a price service, which
   // may apply additional rules to the basic prices.
-  val priceService = DefaultPriceService
+  val priceService = new PriceService {}
 
   // === Building a cart ====================
 

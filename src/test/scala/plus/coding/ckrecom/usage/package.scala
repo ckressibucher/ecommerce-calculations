@@ -31,21 +31,4 @@ package object usage {
 
     def taxClass: TaxSystem.DefaultTaxClass = new TaxSystem.SimpleTax(10, 100) // 10 % tax
   }
-
-  object DefaultPriceService extends PriceService[TaxSystem.DefaultTaxClass] {
-    type T = TaxSystem.DefaultTaxClass
-
-    override def priceFor(product: Product[T], cur: CurrencyUnit, qty: BigDecimal = new BigDecimal(1)): Try[BigDecimal] = {
-      Try {
-        product.netPrice(cur).get
-      }
-    }
-
-    override def grossPriceFor(product: Product[T], cur: CurrencyUnit, qty: BigDecimal = new BigDecimal(1)): Try[BigDecimal] = {
-      priceFor(product, cur, qty) map { netAmount: BigDecimal =>
-        val rate = taxSystem.rate(product.taxClass)
-        rate.grossAmount(netAmount)
-      }
-    }
-  }
 }
