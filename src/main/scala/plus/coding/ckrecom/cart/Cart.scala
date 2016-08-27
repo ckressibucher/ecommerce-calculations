@@ -13,20 +13,50 @@ import java.math.RoundingMode
 object Cart {
 
   /** Builds a cart from a sequence of not-yet-calculated items (`CartItemPre` instances),
-    * currency and tax price mode.
+    * currency and tax price mode. This is the recommended *main* method to build and calculate
+    * a cart.
     *
-    * (this is not named `apply` to avoid overloaded methods to help debugging)
-    *
-    * TODO: directly validate the resulting cart, and return a Try[Cart] instead of a Cart
     */
-  def fromItems[T <: CartItemPre[_, U], U: TaxSystem](preItems: Seq[T], cur: CurrencyUnit, mode: PriceMode.Value)(implicit mc: MathContext): Cart[U] = {
-    val cart = new Cart(cur, mode, Seq.empty)
-    (cart /: preItems) {
+  def fromItems[T <: CartItemPre[_, U], U: TaxSystem](preItems: Seq[T], cur: CurrencyUnit, mode: PriceMode.Value)(implicit mc: MathContext): CartResult[U] = {
+    val initCart = new Cart(cur, mode, Seq.empty)
+    val cart = (initCart /: preItems) {
       case (c: Cart[U], item: CartItemPre[_, _]) => {
         val prices = item.finalPrices(c)
         c.addContent(CartContentItem(item.priceable, prices))
       }
     }
+    validate(cart) match {
+      case Nil  => Right(cart)
+      case errs => Left(errs)
+    }
+  }
+
+  /** Checks if the cart contains failed price calculations.
+    *
+    * Returns a list of errors (or an empty list if the cart is valid).
+    */
+  def validate[T](cart: CartBase[T]): Seq[Throwable] = {
+    val result = Seq.empty[Throwable]
+    (result /: cart.contents) {
+      case (errs, CartContentItem(_, Success(_))) => errs
+      case (errs, CartContentItem(_, Failure(e))) => e +: errs
+    }
+  }
+
+  /** Returns a string describing the contents of this object.
+    */
+  def debugString(cart: CartBase[_]): String = {
+    val title = "Debugging cart:\n==============="
+    val cur = "Currency: " ++ cart.currency.toString()
+    val pMode = "Price mode: " ++ cart.mode.toString()
+    val contentStr = ("contents:\n---------\n" /: cart.contents) {
+      case (acc, item) => acc ++ (" - " ++ item.toString + '\n')
+    }
+    val taxesStr = ("Taxes:\n------------\n" /: cart.taxes()) {
+      case (acc, (cls, amnt)) => acc ++ (cls.toString ++ " : " ++ amnt.toString() + '\n')
+    }
+    val totalSum = "Total: " ++ cart.grandTotal().toString()
+    List(title, cur, pMode, contentStr, taxesStr, totalSum).mkString("\n")
   }
 
 }
@@ -43,17 +73,6 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
   val currency: CurrencyUnit
 
   val mode: PriceMode.Value
-
-  /** Checks if the cart contains failed price calculations.
-    *
-    * Returns a list of errors (or an empty list if the cart is valid).
-    */
-  def validate: Seq[Throwable] = {
-    contents.foldRight(Seq.empty[Throwable]) {
-      case (CartContentItem(_, Success(_)), errs) => errs
-      case (CartContentItem(_, Failure(e)), errs) => e +: errs
-    }
-  }
 
   def taxes(rounding: RoundingMode = RoundingMode.HALF_UP): TaxTotals[T] = {
     allPricesByTaxClass(this) map {
@@ -74,11 +93,10 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
     val itemSums = for {
       item <- contents
       prices = item.results match {
-        case Failure(_)                => Map.empty
-        case Success(ps: Map[_, Long]) => ps
+        case Failure(_)                => 0L
+        case Success(ps: Map[_, Long]) => ps.values.sum
       }
-      priceAmnts = prices.values
-    } yield priceAmnts.sum
+    } yield prices
     itemSums.sum
   }
 }
@@ -100,21 +118,5 @@ case class Cart[T: TaxSystem](
     */
   def addContent(item: CartContentItem[_, T]): Cart[T] = {
     copy(contents = contents ++ Seq(item))
-  }
-
-  /** Returns a string describing the contents of this object.
-    */
-  def debugString: String = {
-    val title = "Debugging cart:\n==============="
-    val cur = "Currency: " ++ currency.toString()
-    val pMode = "Price mode: " ++ mode.toString()
-    val contentStr = ("contents:\n---------\n" /: contents) {
-      case (acc, item) => acc ++ (" - " ++ item.toString + '\n')
-    }
-    val taxesStr = ("Taxes:\n------------\n" /: taxes()) {
-      case (acc, (cls, amnt)) => acc ++ (cls.toString ++ " : " ++ amnt.toString() + '\n')
-    }
-    val totalSum = "Total: " ++ grandTotal().toString()
-    List(title, cur, pMode, contentStr, taxesStr, totalSum).mkString("\n")
   }
 }

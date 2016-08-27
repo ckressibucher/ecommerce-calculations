@@ -33,8 +33,8 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
       lineSumCalculator(line)
     }
 
-    val cart = Cart.fromItems[CartItemPre[_, T], T](lineItems, usdollar, PriceMode.PRICE_NET)
-    sumTotals(cart) should be(150L)
+    val cart: CartResult[T] = Cart.fromItems[CartItemPre[_, T], T](lineItems, usdollar, PriceMode.PRICE_NET)
+    cart.right.get.grandTotal() should be(150L)
   }
 
   it should "add taxes if cart mode is PRICE_GROSS" in {
@@ -44,7 +44,7 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     val line = Line(buildSimpleProduct[T](price = "100", taxCls10Pct), bigDec("1"))
     val cart = Cart.fromItems(Seq.empty, usdollar, PriceMode.PRICE_GROSS)
     val lineCalc = lineSumCalculator(line)
-    lineCalc.finalPrices(cart) should be(Success(Map(taxCls10Pct -> 110L)))
+    lineCalc.finalPrices(cart.right.get) should be(Success(Map(taxCls10Pct -> 110L)))
   }
 
   it should "allow mixed tax classes" in {
@@ -57,7 +57,7 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     val preItems: List[CartItemPre[_, T]] = products map { lineSumCalculator(_) }
 
     val cart = Cart.fromItems[CartItemPre[_, T], T](preItems, usdollar, PriceMode.PRICE_GROSS)
-    sumTotals(cart) should be(255L)
+    cart.right.get.grandTotal() should be(255L)
   }
 
   it should "use the rounding service to round line sums" in {
@@ -69,6 +69,6 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     val line = Line(buildSimpleProduct[T](price = "99", taxFree), bigDec("1"))
     val cart = Cart.fromItems(Seq.empty, usdollar, PriceMode.PRICE_NET)
     val lineCalc = new LineCalc(line, new TestPriceService)
-    lineCalc.finalPrices(cart) should be(Success(Map(taxFree -> 95L)))
+    lineCalc.finalPrices(cart.right.get) should be(Success(Map(taxFree -> 95L)))
   }
 }

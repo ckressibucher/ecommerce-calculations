@@ -22,7 +22,10 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
 
     val items = Seq.empty
     val cart = Cart.fromItems(items, usdollar, PriceMode.PRICE_GROSS)
-    cart.grandTotal() should be(0L)
+    cart match {
+      case Right(successCart) => successCart.grandTotal() should be(0L)
+      case Left(errs)         => fail("Cart calculation failed, first error was", errs.head)
+    }
   }
 
   it should "be constructed from a list of final calculated items" in {
@@ -71,24 +74,28 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
     taxMap.get(taxFree) should be(Some(0))
   }
 
-  "The cart's `validate` method" should "return en empty Sequence if cart is valid" in {
+  "Validation: The Cart.fromItems method" should "fail and return a list of errors if the cart is not valid" in {
     type T = DefaultTaxClass
     implicit val taxSystem = DefaultTaxSystem
 
-    val cart = Cart(usdollar, PriceMode.PRICE_NET)
-    cart.validate should be(Seq.empty)
-  }
-
-  it should "return a list of errors if the cart is not valid" in {
-    type T = DefaultTaxClass
-    implicit val taxSystem = DefaultTaxSystem
-
+    // a product for our cart...
     val product = SimpleProduct[T](Map(usdollar -> new BigDecimal("100")), taxCls10Pct)
-    val err = new CalculationException("some error")
-    val item = CartContentItem(Line(product, new BigDecimal("1")), Failure(err))
-    val cart = Cart(usdollar, PriceMode.PRICE_NET, List(item))
+    val cartLine = new Line(product, new BigDecimal("1"))
 
-    cart.validate should be(Seq(err))
+    // .. which somehow produces a calculation error
+    val err = new CalculationException("some error")
+    val errorCalculation = new CartItemPre[Line[_], T] {
+      def priceable = cartLine
+      def finalPrices(c: CartBase[T]): PriceResult[T] = Failure(err)
+    }
+
+    val items: Seq[CartItemPre[Line[_], T]] = Seq(errorCalculation)
+    val cart = Cart.fromItems[CartItemPre[Line[_], T], T](items, usdollar, PriceMode.PRICE_GROSS)
+
+    cart match {
+      case Left(errs) => errs.head should be(err)
+      case Right(_)   => fail("expected the cart calculations to fail!")
+    }
   }
 
 }

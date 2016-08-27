@@ -28,4 +28,6 @@ package object cart {
   case class CartContentItem[P, T: TaxSystem](priceable: P, results: PriceResult[T])
 
   type TaxTotals[T] = Map[T, Long]
+
+  type CartResult[T] = Either[Seq[Throwable], CartBase[T]]
 }

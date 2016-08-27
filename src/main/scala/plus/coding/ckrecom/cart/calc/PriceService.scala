@@ -49,3 +49,10 @@ trait PriceService {
     }
   }
 }
+
+object PriceService {
+
+  /** the default service is a concrete class using the trait's implementations
+    */
+  object DefaultPriceService extends PriceService {}
+}

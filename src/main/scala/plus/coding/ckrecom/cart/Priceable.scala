@@ -21,6 +21,14 @@ object Priceable {
     */
   case class Line[T: TaxSystem](product: Product[T], qty: BigDecimal)
 
+  object Line {
+    /** constructor using `Int` value as quantity */
+    def apply[T: TaxSystem](product: Product[T], qty: Int): Line[T] = {
+      val qtyBD = new BigDecimal(qty)
+      apply(product, qtyBD)
+    }
+  }
+
   /** A Priceable:
     * A discount code
     */

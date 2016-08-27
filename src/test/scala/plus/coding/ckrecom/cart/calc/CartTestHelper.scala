@@ -28,21 +28,6 @@ trait CartTestHelper {
 
   def bigDec(value: String): BigDecimal = new BigDecimal(value)
 
-  /** Sums up the totals of the cart.
-    *
-    * Useful to verify calculation logic in tests.
-    * Ignores failed or not yet calculated final item prices.
-    */
-  def sumTotals[T: TaxSystem](cart: Cart[T])(implicit mc: MathContext): Long = {
-    cart.contents.foldLeft(0L) { (acc: Long, item: CartContentItem[_, T]) =>
-      def itemSum = item.results match {
-        case Success(ps) => ps.values.sum
-        case Failure(_)  => 0L
-      }
-      acc + itemSum
-    }
-  }
-
   def buildSimpleProduct[T: TaxSystem](price: String, tc: T): Product[T] = {
     val p = Map(usdollar -> new BigDecimal(price))
     SimpleProduct(p, tc)

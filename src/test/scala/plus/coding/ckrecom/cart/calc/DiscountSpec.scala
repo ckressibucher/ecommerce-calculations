@@ -42,7 +42,7 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
 
     val cart = Cart.fromItems[CartItemPre[_, T], T](preItems, usdollar, PriceMode.PRICE_NET)
 
-    val discPrices = calculator.finalPrices(cart)
+    val discPrices = calculator.finalPrices(cart.right.get)
     val expectedPrices: Map[T, Long] = Map(
       FreeTax -> -10L,
       SimpleTax(1, 10) -> -10L)
