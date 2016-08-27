@@ -4,11 +4,10 @@ import scala.collection.immutable._
 
 /** A priceable together with the definition how to calculate final prices.
   *
-  * A list of those "pre cart items" together with a cart definition should be
-  * enough to calculate the cart. The resulting prices are later used as the
+  * A list of these `CartItemCalculator`s, together with a cart definition
+  * should be enough to calculate the cart (see the `CartSystem` trait).
+  * The resulting prices are later used as the
   * base for further calculations like discounts or taxes.
-  *
-  * TODO should we rename this? maybe "CartItemCalculator"
   */
 abstract class CartItemCalculator[P, T: TaxSystem] {
 
