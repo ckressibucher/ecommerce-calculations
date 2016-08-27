@@ -24,10 +24,12 @@ package object cart {
 
   /** The result of a price calculation, which uses
     * the `TaxClass` defined here.
+    *
+    * TODO maybe we could replace Seq[TaxedPrice] with Map[TaxClass, Long]
     */
   type PriceResult[T] = Try[Seq[TaxedPrice[T]]]
 
-  case class CartContentItem[T: TaxSystem](priceable: Priceable[T], results: PriceResult[T])
+  case class CartContentItem[P, T: TaxSystem](priceable: P, results: PriceResult[T])
 
   type TaxTotals[T] = Map[T, Long]
 }

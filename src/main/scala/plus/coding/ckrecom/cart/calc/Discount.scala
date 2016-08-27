@@ -15,8 +15,8 @@ import java.math.MathContext
 /** Applies a fixed discount, using the cheapest tax class of any of the products in cart (or the fallbackTaxClass when no
   * products are in the cart).
   */
-class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount[T], fallbackTaxClass: T)
-    extends CartItemPre[FixedDiscount[T], T] with PriceCalculations {
+class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount, fallbackTaxClass: T)
+    extends CartItemPre[FixedDiscount, T] with PriceCalculations {
 
   def finalPrices(c: CartBase[T]): PriceResult[T] = {
     val taxClass = cheapestTaxClass(c).getOrElse(fallbackTaxClass)
@@ -28,8 +28,8 @@ class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount[T], fallbackT
 
 // TODO Fixed discounts with distributed tax classes, or a fixed tax class
 
-class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount[T])(implicit val rounding: Rounding)
-    extends CartItemPre[PctDiscount[T], T] with PriceCalculations {
+class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount)(implicit val rounding: Rounding)
+    extends CartItemPre[PctDiscount, T] with PriceCalculations {
 
   def finalPrices(c: CartBase[T]): Try[Seq[TaxedPrice[T]]] = {
     val productPricesByTaxClass = linePricesByTaxClass(c)

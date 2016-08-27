@@ -14,26 +14,33 @@ import plus.coding.ckrecom.tax.TaxSystem
 /** A Priceable is something that, together with an ItemCalc,
   * can produce a final price which goes into the totals sum.
   */
-abstract class Priceable[T: TaxSystem] {
-}
 
 object Priceable {
-  /** A cart line holding a product and a quantity */
-  case class Line[T: TaxSystem](product: Product[T], qty: BigDecimal) extends Priceable[T]
+  /** A Priceable:
+    * A cart line holding a product and a quantity
+    */
+  case class Line[T: TaxSystem](product: Product[T], qty: BigDecimal)
 
-  /** A discount code */
-  case class FixedDiscount[T: TaxSystem](code: String, amount: Long) extends Priceable[T]
+  /** A Priceable:
+    * A discount code
+    */
+  case class FixedDiscount(code: String, amount: Long)
 
-  /** A discount as percentage of the product prices
+  /** A Priceable:
+    * A discount as percentage of the product prices
     *
     * @param code The discount code
     * @param pct The percentage disount to apply, e.g. pct=30 reduces a 10 USD to 7 USD
     */
-  case class PctDiscount[T: TaxSystem](code: String, pct: Int) extends Priceable[T]
+  case class PctDiscount(code: String, pct: Int)
 
-  /** A shipping fee, represented by a string key */
-  case class Shipping[T: TaxSystem](key: String) extends Priceable[T]
+  /** A Priceable:
+    * A shipping fee, represented by a string key
+    */
+  case class Shipping(key: String)
 
-  /** A fixed-amount fee (amount is either a gross or net value) */
-  case class Fee[T: TaxSystem](amount: MonetaryAmount, mode: PriceMode.Value) extends Priceable[T]
+  /** A Priceable:
+    * A fixed-amount fee (amount is either a gross or net value)
+    */
+  case class Fee(amount: MonetaryAmount, mode: PriceMode.Value)
 }

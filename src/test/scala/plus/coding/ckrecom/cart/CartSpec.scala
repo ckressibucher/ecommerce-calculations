@@ -1,16 +1,16 @@
-package plus.coding.ckrecom
+package plus.coding.ckrecom.cart
+
+import java.math.{ BigDecimal, MathContext }
+
+import scala.collection.immutable.Seq
+import scala.util.{ Failure, Success }
 
 import org.scalatest._
-import scala.collection.immutable.Seq
+
+import Priceable.{ FixedDiscount, Line }
+import plus.coding.ckrecom.PriceMode
 import plus.coding.ckrecom.cart.calc.CartTestHelper
-import plus.coding.ckrecom.tax.TaxSystem.DefaultTaxClass
-import plus.coding.ckrecom.cart._
-import plus.coding.ckrecom.tax.TaxSystem.DefaultTaxSystem
-import java.math.{ BigDecimal, MathContext }
-import plus.coding.ckrecom.cart.Priceable.Line
-import scala.util.{ Try, Success, Failure }
-import plus.coding.ckrecom.tax.TaxSystem.SimpleTax
-import plus.coding.ckrecom.cart.Priceable.FixedDiscount
+import plus.coding.ckrecom.tax.TaxSystem.{ DefaultTaxClass, DefaultTaxSystem, SimpleTax }
 
 class CartSpec extends FlatSpec with Matchers with CartTestHelper {
 

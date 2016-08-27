@@ -1,14 +1,11 @@
-package plus.coding.ckrecom.cart.calc
+package plus.coding.ckrecom.cart
+package calc
 
-import plus.coding.ckrecom.cart._
-import plus.coding.ckrecom.tax.TaxSystem
-import Priceable._
-import scala.util.{ Success }
 import scala.collection.immutable.Seq
-import java.math.BigDecimal
 import scala.util.Success
-import plus.coding.ckrecom.tax.TaxRate
-import java.math.MathContext
+
+import plus.coding.ckrecom.cart.Priceable._
+import plus.coding.ckrecom.tax.{ TaxRate, TaxSystem }
 
 /** A helper for price calculations.
   */
@@ -43,7 +40,7 @@ trait PriceCalculations {
 
   // TODO should we exclude free tax somehow?
   def cheapestTaxClass[T: TaxSystem](cart: CartBase[T])(implicit ord: Ordering[TaxRate]): Option[T] = {
-    import ord.{ Ops, mkOrderingOps }
+    import ord.mkOrderingOps
 
     val lnPrices = linePrices(cart)
     val taxSystem = implicitly[TaxSystem[T]]
@@ -63,9 +60,9 @@ trait PriceCalculations {
   }
 
   private def linePrices[T: TaxSystem](cart: CartBase[T]): Seq[PriceResult[T]] = {
-    val lines: Seq[CartContentItem[T]] = cart.contents.filter {
-      case CartContentItem(line, _) if line.isInstanceOf[Line[T]] => true
-      case _ => false
+    val lines: Seq[CartContentItem[_, T]] = cart.contents.filter {
+      case CartContentItem(Line(_, _), _) => true
+      case _                              => false
     }
     lines map { _.results }
   }

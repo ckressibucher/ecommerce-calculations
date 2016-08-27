@@ -10,8 +10,10 @@ import plus.coding.ckrecom.tax.TaxSystem
   * A list of those "pre cart items" together with a cart definition should be
   * enough to calculate the cart. The resulting prices are later used as the
   * base for further calculations like discounts or taxes.
+  *
+  * TODO should we rename this? maybe "CartItemCalculator"
   */
-abstract class CartItemPre[P <: Priceable[T], T: TaxSystem] {
+abstract class CartItemPre[P, T: TaxSystem] {
 
   /** Returns the wrapped priceable
     */

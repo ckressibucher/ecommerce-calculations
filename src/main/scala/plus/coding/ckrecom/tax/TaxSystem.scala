@@ -3,8 +3,11 @@ package plus.coding.ckrecom.tax
 import java.math.BigDecimal
 import scala.util.Try
 
-/** An implementation of a tax system must provide a type for tax classes (`C`)
-  * and a function to convert instances of that type to `TaxRate`s.
+/** A `TaxSystem` is used to calculate a `TaxRate` for every supported tax class `C`.
+  *
+  * (the idea of using a `TaxSystem[C]` over a simple trait `TaxClass` is, that a
+  * TaxSystem[C] better expresses the idea of a system containing a set of supported
+  * tax classes. See the default implementation `TaxSystem.DefaultTaxSystem`).
   */
 trait TaxSystem[C] {
 

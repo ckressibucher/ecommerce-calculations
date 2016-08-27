@@ -34,9 +34,9 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
   implicit val mc: MathContext
   val taxSystem = implicitly[TaxSystem[T]]
 
-  case class Contents[T](cs: Seq[CartContentItem[T]])
+  case class Contents[T](cs: Seq[CartContentItem[_, T]])
 
-  val contents: Seq[CartContentItem[T]] = Seq.empty
+  val contents: Seq[CartContentItem[_, T]] = Seq.empty
 
   val currency: CurrencyUnit
 
@@ -87,7 +87,7 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
 case class Cart[T: TaxSystem](
   override val currency: CurrencyUnit,
   override val mode: PriceMode.Value,
-  override val contents: Seq[CartContentItem[T]] = Seq.empty)(implicit val mc: MathContext)
+  override val contents: Seq[CartContentItem[_, T]] = Seq.empty)(implicit val mc: MathContext)
     extends CartBase[T] {
 
   /** Adds an item to the cart.
@@ -96,7 +96,7 @@ case class Cart[T: TaxSystem](
     * validate the final cart instance whenever you
     * update a cart.
     */
-  def addContent(item: CartContentItem[T]): Cart[T] = {
+  def addContent(item: CartContentItem[_, T]): Cart[T] = {
     copy(contents = contents ++ Seq(item))
   }
 
