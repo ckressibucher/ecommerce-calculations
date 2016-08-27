@@ -1,16 +1,14 @@
-package plus.coding.ckrecom.cart
+package plus.coding.ckrecom
 
 import java.math.{ BigDecimal, MathContext }
 
-import scala.collection.immutable.Seq
+import scala.collection.immutable._
 import scala.util.{ Failure, Success }
 
 import org.scalatest._
 
-import Priceable.{ FixedDiscount, Line }
-import plus.coding.ckrecom.PriceMode
-import plus.coding.ckrecom.cart.calc.CartTestHelper
-import plus.coding.ckrecom.tax.TaxSystem.{ DefaultTaxClass, DefaultTaxSystem, SimpleTax }
+import plus.coding.ckrecom.impl.Priceable._
+import TaxSystem._
 
 class CartSpec extends FlatSpec with Matchers with CartTestHelper {
 
@@ -84,13 +82,13 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
 
     // .. which somehow produces a calculation error
     val err = new CalculationException("some error")
-    val errorCalculation = new CartItemPre[Line[_], T] {
+    val errorCalculation = new CartItemCalculator[Line[_], T] {
       def priceable = cartLine
       def finalPrices(c: CartBase[T]): PriceResult[T] = Failure(err)
     }
 
-    val items: Seq[CartItemPre[Line[_], T]] = Seq(errorCalculation)
-    val cart = Cart.fromItems[CartItemPre[Line[_], T], T](items, usdollar, PriceMode.PRICE_GROSS)
+    val items: Seq[CartItemCalculator[Line[_], T]] = Seq(errorCalculation)
+    val cart = Cart.fromItems[CartItemCalculator[Line[_], T], T](items, usdollar, PriceMode.PRICE_GROSS)
 
     cart match {
       case Left(errs) => errs.head should be(err)

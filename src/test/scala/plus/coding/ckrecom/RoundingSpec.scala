@@ -1,4 +1,4 @@
-package plus.coding.ckrecom.cart.calc
+package plus.coding.ckrecom
 
 import org.scalatest._
 import java.math.{ BigDecimal, MathContext, RoundingMode }

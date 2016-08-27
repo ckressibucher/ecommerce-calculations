@@ -1,13 +1,10 @@
-package plus.coding.ckrecom.cart.calc
+package plus.coding.ckrecom
+package impl
 
 import java.math.BigDecimal
 import java.math.MathContext
-
 import scala.util.Try
-
 import javax.money.CurrencyUnit
-import plus.coding.ckrecom.Product
-import plus.coding.ckrecom.tax.TaxSystem
 
 /** Helper for `LineCalc` to determine the price for a product.
   */

@@ -1,4 +1,4 @@
-package plus.coding.ckrecom.cart.calc
+package plus.coding.ckrecom
 
 import java.math.{ BigDecimal, RoundingMode, MathContext }
 

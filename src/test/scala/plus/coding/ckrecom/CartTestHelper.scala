@@ -1,15 +1,11 @@
-package plus.coding.ckrecom.cart.calc
+package plus.coding.ckrecom
 
-import java.math.{ BigDecimal, MathContext }
+import java.math.BigDecimal
 import javax.money._
-import plus.coding.ckrecom._
-import plus.coding.ckrecom.cart._
-import plus.coding.ckrecom.tax._
-import scala.util.{ Try, Failure, Success }
+import plus.coding.ckrecom.impl._
 import scala.collection.immutable._
-import plus.coding.ckrecom.tax.TaxRate
-
 import TaxSystem._
+import plus.coding.ckrecom.impl.PriceService
 
 /** Some utility values, methods and classes to test cart logic */
 trait CartTestHelper {

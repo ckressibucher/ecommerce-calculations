@@ -1,9 +1,6 @@
-package plus.coding.ckrecom.cart
+package plus.coding.ckrecom
 
 import scala.collection.immutable._
-import scala.util.Try
-import plus.coding.ckrecom.tax.TaxSystem
-import plus.coding.ckrecom.tax.TaxSystem
 
 /** A priceable together with the definition how to calculate final prices.
   *
@@ -13,7 +10,7 @@ import plus.coding.ckrecom.tax.TaxSystem
   *
   * TODO should we rename this? maybe "CartItemCalculator"
   */
-abstract class CartItemPre[P, T: TaxSystem] {
+abstract class CartItemCalculator[P, T: TaxSystem] {
 
   /** Returns the wrapped priceable
     */

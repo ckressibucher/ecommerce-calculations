@@ -1,4 +1,4 @@
-package plus.coding.ckrecom.tax
+package plus.coding.ckrecom
 
 import java.math.{ BigDecimal, MathContext }
 

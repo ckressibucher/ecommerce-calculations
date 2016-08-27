@@ -1,15 +1,8 @@
-package plus.coding.ckrecom.cart
+package plus.coding.ckrecom
+package impl
 
 import java.math.BigDecimal
-import scala.collection.immutable.Seq
-import scala.util.Try
 import javax.money.MonetaryAmount
-import plus.coding.ckrecom.PriceMode
-import plus.coding.ckrecom.Product
-import plus.coding.ckrecom.tax.TaxSystem
-import plus.coding.ckrecom.tax.TaxSystem
-import plus.coding.ckrecom.tax.TaxSystem
-import plus.coding.ckrecom.tax.TaxSystem
 
 /** A Priceable is something that, together with an ItemCalc,
   * can produce a final price which goes into the totals sum.

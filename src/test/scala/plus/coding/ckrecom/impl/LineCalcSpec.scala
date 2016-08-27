@@ -1,10 +1,8 @@
-package plus.coding.ckrecom.cart.calc
+package plus.coding.ckrecom
+package impl
 
 import org.scalatest._
 import org.javamoney.moneta._
-import plus.coding.ckrecom._
-import plus.coding.ckrecom.cart._
-import plus.coding.ckrecom.tax._
 import java.math.MathContext
 import javax.money._
 import java.math.BigDecimal
@@ -33,7 +31,7 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
       lineSumCalculator(line)
     }
 
-    val cart: CartResult[T] = Cart.fromItems[CartItemPre[_, T], T](lineItems, usdollar, PriceMode.PRICE_NET)
+    val cart: CartResult[T] = Cart.fromItems[CartItemCalculator[_, T], T](lineItems, usdollar, PriceMode.PRICE_NET)
     cart.right.get.grandTotal() should be(150L)
   }
 
@@ -54,9 +52,9 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     val products = List(
       Line(buildSimpleProduct[T]("100", taxFree), bigDec("2")), // line sum: 200
       Line(buildSimpleProduct[T]("50", taxCls10Pct), bigDec("1"))) // line sum: 55
-    val preItems: List[CartItemPre[_, T]] = products map { lineSumCalculator(_) }
+    val preItems: List[CartItemCalculator[_, T]] = products map { lineSumCalculator(_) }
 
-    val cart = Cart.fromItems[CartItemPre[_, T], T](preItems, usdollar, PriceMode.PRICE_GROSS)
+    val cart = Cart.fromItems[CartItemCalculator[_, T], T](preItems, usdollar, PriceMode.PRICE_GROSS)
     cart.right.get.grandTotal() should be(255L)
   }
 

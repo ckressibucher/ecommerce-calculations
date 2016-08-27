@@ -3,11 +3,9 @@ package usage
 
 import java.math.{ BigDecimal, MathContext }
 import javax.money.Monetary
-import plus.coding.ckrecom.cart._
-import plus.coding.ckrecom.cart.Priceable._
-import plus.coding.ckrecom.cart.calc._
-import plus.coding.ckrecom.tax.TaxSystem
-import scala.collection.immutable.Seq
+import plus.coding.ckrecom.impl.Priceable._
+import plus.coding.ckrecom.impl._
+import scala.collection.immutable._
 import scala.util.{ Left, Right }
 import javax.money.CurrencyUnit
 
@@ -36,7 +34,7 @@ object UsageExample extends App {
   //
   // Here, we define our specialized type for our tax class `TaxCls`
   // and generalize over the cart content (using `_`).
-  type CalcItem = CartItemPre[_, TaxCls]
+  type CalcItem = CartItemCalculator[_, TaxCls]
 
   // we use `Int`s in our `Article`s to define prices
   type Cents = Int
@@ -64,7 +62,7 @@ object UsageExample extends App {
     *
     * See the `CartSystem` type to see what abstract members it defines.
     */
-  val exampleProductsAndDiscounts = new CartApi.CartSystem[TaxCls] {
+  val exampleProductsAndDiscounts = new CartSystem[TaxCls] {
 
     // for some (java) BigDecimal calculations, we need a `MathContext` available
     implicit val mc: MathContext = MathContext.DECIMAL128

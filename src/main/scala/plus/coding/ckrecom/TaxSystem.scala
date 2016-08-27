@@ -1,7 +1,4 @@
-package plus.coding.ckrecom.tax
-
-import java.math.BigDecimal
-import scala.util.Try
+package plus.coding.ckrecom
 
 /** A `TaxSystem` is used to calculate a `TaxRate` for every supported tax class `C`.
   *

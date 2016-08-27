@@ -1,10 +1,8 @@
 package plus.coding.ckrecom
 
-import tax.TaxSystem
 import java.math.BigDecimal
-import javax.money.CurrencyUnit
 import scala.collection.immutable.Seq
-import scala.math.Numeric
+import javax.money.CurrencyUnit
 
 /** A product defines as a bare minimum
   * - a tax class

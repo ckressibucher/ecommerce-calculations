@@ -1,18 +1,15 @@
-package plus.coding.ckrecom.cart.calc
+package plus.coding.ckrecom
+package impl
 
-import plus.coding.ckrecom.cart._
-import plus.coding.ckrecom._
-import plus.coding.ckrecom.tax.TaxSystem
-import Priceable._
+import plus.coding.ckrecom.impl.Priceable._
 import java.math.BigDecimal
-import javax.money.CurrencyUnit
 import scala.collection.immutable._
-import scala.util.{ Try, Failure, Success }
-import java.math.MathContext
+import scala.util.Try
 
-/** Calculate the final prices for an item line using a price service.
+/** Cal
+  * import plus.coding.ckrecom.impl.PriceServiceculate the final prices for an item line using a price service.
   */
-class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService)(implicit val rounding: Rounding) extends CartItemPre[Line[T], T] {
+class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService)(implicit val rounding: Rounding) extends CartItemCalculator[Line[T], T] {
 
   val priceable = line
 

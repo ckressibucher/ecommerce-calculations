@@ -1,13 +1,10 @@
 package plus.coding.ckrecom
-package cart
 
 import javax.money.CurrencyUnit
 import java.math.{ BigDecimal, MathContext }
 import scala.collection.immutable.{ Seq, Map }
 import scala.util.{ Try, Success, Failure }
-import plus.coding.ckrecom.tax.{ TaxRate, TaxSystem }
-import plus.coding.ckrecom.tax.TaxSystem
-import plus.coding.ckrecom.cart.calc.PriceCalculations
+import plus.coding.ckrecom.impl.PriceCalculations
 import java.math.RoundingMode
 
 object Cart {
@@ -17,10 +14,10 @@ object Cart {
     * a cart.
     *
     */
-  def fromItems[T <: CartItemPre[_, U], U: TaxSystem](preItems: Seq[T], cur: CurrencyUnit, mode: PriceMode.Value)(implicit mc: MathContext): CartResult[U] = {
+  def fromItems[T <: CartItemCalculator[_, U], U: TaxSystem](preItems: Seq[T], cur: CurrencyUnit, mode: PriceMode.Value)(implicit mc: MathContext): CartResult[U] = {
     val initCart = new Cart(cur, mode, Seq.empty)
     val cart = (initCart /: preItems) {
-      case (c: Cart[U], item: CartItemPre[_, _]) => {
+      case (c: Cart[U], item: CartItemCalculator[_, _]) => {
         val prices = item.finalPrices(c)
         c.addContent(CartContentItem(item.priceable, prices))
       }

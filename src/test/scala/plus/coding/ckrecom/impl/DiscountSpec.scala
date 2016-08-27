@@ -1,9 +1,7 @@
-package plus.coding.ckrecom.cart.calc
+package plus.coding.ckrecom
+package impl
 
 import org.scalatest._
-import plus.coding.ckrecom.cart._
-import plus.coding.ckrecom.tax._
-import plus.coding.ckrecom._
 import java.math.BigDecimal
 import scala.collection.immutable._
 import scala.util.{ Try, Success, Failure }
@@ -38,9 +36,9 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
     val products = List(
       Line(buildSimpleProduct[T]("100", taxFree), bigDec("1")),
       Line(buildSimpleProduct[T]("100", SimpleTax(1, 10)), bigDec("1")))
-    val preItems: Seq[CartItemPre[Line[T], T]] = products map { lineSumCalc(_) }
+    val preItems: Seq[CartItemCalculator[Line[T], T]] = products map { lineSumCalc(_) }
 
-    val cart = Cart.fromItems[CartItemPre[_, T], T](preItems, usdollar, PriceMode.PRICE_NET)
+    val cart = Cart.fromItems[CartItemCalculator[_, T], T](preItems, usdollar, PriceMode.PRICE_NET)
 
     val discPrices = calculator.finalPrices(cart.right.get)
     val expectedPrices: Map[T, Long] = Map(
