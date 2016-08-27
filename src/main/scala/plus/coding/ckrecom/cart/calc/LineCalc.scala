@@ -20,7 +20,7 @@ class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService)(
 
   def finalPrices(c: CartBase[T]): PriceResult[T] = {
     // price for qty == 1
-    val singlePrice = c.mode match {
+    val singlePrice: Try[BigDecimal] = c.mode match {
       case PriceMode.PRICE_NET =>
         priceService.priceFor(line.product, c.currency, line.qty)(taxSystem, c.mc)
       case PriceMode.PRICE_GROSS =>
@@ -31,6 +31,6 @@ class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService)(
     val linePrice = singlePrice.map(_.multiply(line.qty))
 
     // round the price and wrap it into the required PriceResult structure
-    linePrice map { p: BigDecimal => TaxedPrice(rounding(p), line.product.taxClass) :: Nil }
+    linePrice map { p: BigDecimal => Map(line.product.taxClass -> rounding(p)) }
   }
 }

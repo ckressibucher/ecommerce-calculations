@@ -36,7 +36,7 @@ trait CartTestHelper {
   def sumTotals[T: TaxSystem](cart: Cart[T])(implicit mc: MathContext): Long = {
     cart.contents.foldLeft(0L) { (acc: Long, item: CartContentItem[_, T]) =>
       def itemSum = item.results match {
-        case Success(ps) => ps.map(_.price).sum
+        case Success(ps) => ps.values.sum
         case Failure(_)  => 0L
       }
       acc + itemSum

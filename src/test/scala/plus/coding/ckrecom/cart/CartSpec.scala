@@ -30,8 +30,8 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
     implicit val taxSystem = DefaultTaxSystem
 
     val product = SimpleProduct[T](Map(usdollar -> new BigDecimal("100")), taxCls10Pct)
-    val taxedPrice = TaxedPrice[T](100, taxCls10Pct)
-    val item = CartContentItem(Line(product, new BigDecimal("1")), Success(List(taxedPrice)))
+    val prices: Map[T, Long] = Map(taxCls10Pct -> 100L)
+    val item = CartContentItem(Line(product, new BigDecimal("1")), Success(prices))
     val cart = Cart(usdollar, PriceMode.PRICE_NET, List(item))
 
     cart.grandTotal() should be(100L)
@@ -45,24 +45,23 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
 
     // A product with 10 pct tax class
     val productA = SimpleProduct[T](Map(usdollar -> new BigDecimal("1000")), taxCls10Pct)
-    val taxedPriceA = TaxedPrice[T](1000, taxCls10Pct)
-    val itemA = CartContentItem(Line(productA, new BigDecimal("1")), Success(List(taxedPriceA)))
+    val taxedPriceA: Map[T, Long] = Map(taxCls10Pct -> 1000L)
+    val itemA = CartContentItem(Line(productA, new BigDecimal("1")), Success(taxedPriceA))
 
     // A product with no tax
     val productB = SimpleProduct[T](Map(usdollar -> new BigDecimal("1000")), taxFree)
-    val taxedPriceB = TaxedPrice[T](1000, taxFree)
-    val itemB = CartContentItem(Line(productB, new BigDecimal("1")), Success(List(taxedPriceB)))
+    val taxedPriceB: Map[T, Long] = Map(taxFree -> 1000L)
+    val itemB = CartContentItem(Line(productB, new BigDecimal("1")), Success(taxedPriceB))
 
     // A product with 5 pct tax
     val productC = SimpleProduct[T](Map(usdollar -> new BigDecimal("1000")), taxCls5Pct)
-    val taxedPriceC = TaxedPrice[T](1000, taxCls5Pct)
-    val itemC = CartContentItem(Line(productC, new BigDecimal("1")), Success(List(taxedPriceC)))
+    val taxedPriceC: Map[T, Long] = Map(taxCls5Pct -> 1000L)
+    val itemC = CartContentItem(Line(productC, new BigDecimal("1")), Success(taxedPriceC))
 
     // A discount, for which we apply taxes evenly distributed to both tax classes used
     val discount = new FixedDiscount("code", 200)
-    val discountPriceA = TaxedPrice[T](-100, taxCls10Pct)
-    val discountPriceB = TaxedPrice[T](-100, taxCls5Pct)
-    val discountItem = CartContentItem(discount, Success(List(discountPriceA, discountPriceB)))
+    val discountPrices: Map[T, Long] = Map(taxCls5Pct -> -100L, taxCls10Pct -> -100L)
+    val discountItem = CartContentItem(discount, Success(discountPrices))
 
     val cart = Cart(usdollar, PriceMode.PRICE_NET, List(itemA, itemB, itemC, discountItem))
 

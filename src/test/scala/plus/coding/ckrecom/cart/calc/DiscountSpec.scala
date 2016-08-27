@@ -25,7 +25,7 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
     val calculator = new FixedDiscountCalc(fixedDisc, taxFree)
 
     val cart = Cart(usdollar, PriceMode.PRICE_NET)
-    calculator.finalPrices(cart) should be(Success(Seq(TaxedPrice(bigDec("-10"), taxFree))))
+    calculator.finalPrices(cart) should be(Success(Map(taxFree -> -10L)))
   }
 
   "The PercentageDiscount calculator" should "apply percentage prices per tax class" in {
@@ -43,7 +43,9 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
     val cart = Cart.fromItems[CartItemPre[_, T], T](preItems, usdollar, PriceMode.PRICE_NET)
 
     val discPrices = calculator.finalPrices(cart)
-    val expectedPrices = Seq(TaxedPrice[T](bigDec("-10"), FreeTax), TaxedPrice[T](bigDec("-10"), SimpleTax(1, 10)))
+    val expectedPrices: Map[T, Long] = Map(
+      FreeTax -> -10L,
+      SimpleTax(1, 10) -> -10L)
     discPrices should be(Success(expectedPrices))
   }
 }

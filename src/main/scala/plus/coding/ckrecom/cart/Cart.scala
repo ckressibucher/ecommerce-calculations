@@ -3,7 +3,7 @@ package cart
 
 import javax.money.CurrencyUnit
 import java.math.{ BigDecimal, MathContext }
-import scala.collection.immutable.Seq
+import scala.collection.immutable.{ Seq, Map }
 import scala.util.{ Try, Success, Failure }
 import plus.coding.ckrecom.tax.{ TaxRate, TaxSystem }
 import plus.coding.ckrecom.tax.TaxSystem
@@ -16,6 +16,8 @@ object Cart {
     * currency and tax price mode.
     *
     * (this is not named `apply` to avoid overloaded methods to help debugging)
+    *
+    * TODO: directly validate the resulting cart, and return a Try[Cart] instead of a Cart
     */
   def fromItems[T <: CartItemPre[_, U], U: TaxSystem](preItems: Seq[T], cur: CurrencyUnit, mode: PriceMode.Value)(implicit mc: MathContext): Cart[U] = {
     val cart = new Cart(cur, mode, Seq.empty)
@@ -72,10 +74,10 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
     val itemSums = for {
       item <- contents
       prices = item.results match {
-        case Failure(_)  => Seq.empty
-        case Success(ps) => ps
+        case Failure(_)                => Map.empty
+        case Success(ps: Map[_, Long]) => ps
       }
-      priceAmnts = prices.map(_.price)
+      priceAmnts = prices.values
     } yield priceAmnts.sum
     itemSums.sum
   }

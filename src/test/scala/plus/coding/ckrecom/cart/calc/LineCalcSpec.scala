@@ -44,7 +44,7 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     val line = Line(buildSimpleProduct[T](price = "100", taxCls10Pct), bigDec("1"))
     val cart = Cart.fromItems(Seq.empty, usdollar, PriceMode.PRICE_GROSS)
     val lineCalc = lineSumCalculator(line)
-    lineCalc.finalPrices(cart) should be(Success(Seq(TaxedPrice[T](110L, taxCls10Pct))))
+    lineCalc.finalPrices(cart) should be(Success(Map(taxCls10Pct -> 110L)))
   }
 
   it should "allow mixed tax classes" in {
@@ -69,6 +69,6 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     val line = Line(buildSimpleProduct[T](price = "99", taxFree), bigDec("1"))
     val cart = Cart.fromItems(Seq.empty, usdollar, PriceMode.PRICE_NET)
     val lineCalc = new LineCalc(line, new TestPriceService)
-    lineCalc.finalPrices(cart) should be(Success(Seq(TaxedPrice[T](95L, taxFree))))
+    lineCalc.finalPrices(cart) should be(Success(Map(taxFree -> 95L)))
   }
 }

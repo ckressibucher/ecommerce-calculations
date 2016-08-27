@@ -1,33 +1,29 @@
 package plus.coding.ckrecom
 
-import scala.math.Numeric
-import scala.collection.immutable.Seq
-import java.math.BigDecimal
 import scala.util.Try
+
 import plus.coding.ckrecom.tax.TaxSystem
 
 package object cart {
 
   class CalculationException(msg: String, prev: Throwable = null) extends RuntimeException(msg, prev)
 
-  /** A price used in the cart.
+  /** The result of a price calculation.
     *
-    * The cart has a defined currency,
-    * so we don't need one in the price.
-    * But we need a TaxClass which should be
-    * used to calculate the net/gross amount
-    * (the given numeric value represents the
-    * type defined for the cart's mode).
+    * This encodes:
+    * - The tax class (or tax class hierarchy) used
+    * - Success of failure of the calculation
+    * - Calculated prices of type `Long`, each mapped to a specific tax class
     *
+    * The price values are expected to be "final", i.e. they are expected to
+    * represent a useful amount of money, and should thus be integral numbers
+    * (representing the smallest unit of the currency).
+    *
+    * The currency is not encoded in this type. It's expected to use this values
+    * only in conjunction with a cart (or something else) that defines the
+    * currency for this prices.
     */
-  case class TaxedPrice[T: TaxSystem](price: Long, taxClass: T)
-
-  /** The result of a price calculation, which uses
-    * the `TaxClass` defined here.
-    *
-    * TODO maybe we could replace Seq[TaxedPrice] with Map[TaxClass, Long]
-    */
-  type PriceResult[T] = Try[Seq[TaxedPrice[T]]]
+  type PriceResult[T] = Try[Map[T, Long]]
 
   case class CartContentItem[P, T: TaxSystem](priceable: P, results: PriceResult[T])
 
