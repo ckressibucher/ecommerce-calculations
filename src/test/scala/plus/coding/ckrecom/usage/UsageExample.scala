@@ -2,21 +2,16 @@ package plus.coding.ckrecom
 package usage
 
 import java.math.{ BigDecimal, MathContext }
-import javax.money.Monetary
 import plus.coding.ckrecom.impl.Priceable._
 import plus.coding.ckrecom.impl._
 import scala.collection.immutable._
 import scala.util.{ Left, Right }
-import javax.money.CurrencyUnit
 
 /** Usage example how to create and calculate a cart.
   *
   * This example can be run with sbt using `sbt test:run`.
   */
 object UsageExample extends App {
-
-  // In this example, we use usDollar as currency.
-  val usDollar = Monetary.getCurrency("USD")
 
   // The most important type we have to define
   // is the tax class to use.
@@ -46,13 +41,7 @@ object UsageExample extends App {
     * data for his products.
     */
   case class Article(name: String, price: Cents) extends Product[TaxCls] {
-    // all our articles only support this one currency...
-    def currencies: Seq[CurrencyUnit] = Seq(usDollar)
-
-    def netPrice(cur: javax.money.CurrencyUnit): Option[java.math.BigDecimal] = cur match {
-      case x if x == usDollar => Some(new BigDecimal(price))
-      case _                  => None
-    }
+    def netPrice: Option[java.math.BigDecimal] = Some(new BigDecimal(price))
 
     def taxClass: TaxSystem.DefaultTaxClass = new TaxSystem.SimpleTax(10, 100) // 10 % tax
   }
@@ -68,8 +57,6 @@ object UsageExample extends App {
     implicit val mc: MathContext = MathContext.DECIMAL128
 
     implicit val taxSystem = TaxSystem.DefaultTaxSystem
-
-    val currency: CurrencyUnit = usDollar
 
     val priceMode: PriceMode.Value = PriceMode.PRICE_GROSS
 

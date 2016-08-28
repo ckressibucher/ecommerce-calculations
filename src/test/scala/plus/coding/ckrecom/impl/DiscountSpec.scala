@@ -22,7 +22,7 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
     val fixedDisc = Priceable.FixedDiscount("ten-less", bigDec("10"))
     val calculator = new FixedDiscountCalc(fixedDisc, taxFree)
 
-    val cart = Cart(usdollar, PriceMode.PRICE_NET)
+    val cart = Cart(PriceMode.PRICE_NET)
     calculator.finalPrices(cart) should be(Success(Map(taxFree -> -10L)))
   }
 
@@ -38,7 +38,7 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
       Line(buildSimpleProduct[T]("100", SimpleTax(1, 10)), bigDec("1")))
     val preItems: Seq[CartItemCalculator[Line[T], T]] = products map { lineSumCalc(_) }
 
-    val cart = Cart.fromItems[CartItemCalculator[_, T], T](preItems, usdollar, PriceMode.PRICE_NET)
+    val cart = Cart.fromItems[CartItemCalculator[_, T], T](preItems, PriceMode.PRICE_NET)
 
     val discPrices = calculator.finalPrices(cart.right.get)
     val expectedPrices: Map[T, Long] = Map(

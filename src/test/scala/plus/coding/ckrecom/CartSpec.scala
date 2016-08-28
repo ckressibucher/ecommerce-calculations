@@ -19,7 +19,7 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
     implicit val taxSystem = DefaultTaxSystem
 
     val items = Seq.empty
-    val cart = Cart.fromItems(items, usdollar, PriceMode.PRICE_GROSS)
+    val cart = Cart.fromItems(items, PriceMode.PRICE_GROSS)
     cart match {
       case Right(successCart) => successCart.grandTotal() should be(0L)
       case Left(errs)         => fail("Cart calculation failed, first error was", errs.head)
@@ -30,10 +30,10 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
     type T = DefaultTaxClass
     implicit val taxSystem = DefaultTaxSystem
 
-    val product = SimpleProduct[T](Map(usdollar -> new BigDecimal("100")), taxCls10Pct)
+    val product = SimpleProduct[T](new BigDecimal("100"), taxCls10Pct)
     val prices: Map[T, Long] = Map(taxCls10Pct -> 100L)
     val item = CartContentItem(Line(product, new BigDecimal("1")), Success(prices))
-    val cart = Cart(usdollar, PriceMode.PRICE_NET, List(item))
+    val cart = Cart(PriceMode.PRICE_NET, List(item))
 
     cart.grandTotal() should be(100L)
   }
@@ -45,17 +45,17 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
     val taxCls5Pct = new SimpleTax(5, 100)
 
     // A product with 10 pct tax class
-    val productA = SimpleProduct[T](Map(usdollar -> new BigDecimal("1000")), taxCls10Pct)
+    val productA = SimpleProduct[T](new BigDecimal("1000"), taxCls10Pct)
     val taxedPriceA: Map[T, Long] = Map(taxCls10Pct -> 1000L)
     val itemA = CartContentItem(Line(productA, new BigDecimal("1")), Success(taxedPriceA))
 
     // A product with no tax
-    val productB = SimpleProduct[T](Map(usdollar -> new BigDecimal("1000")), taxFree)
+    val productB = SimpleProduct[T](new BigDecimal("1000"), taxFree)
     val taxedPriceB: Map[T, Long] = Map(taxFree -> 1000L)
     val itemB = CartContentItem(Line(productB, new BigDecimal("1")), Success(taxedPriceB))
 
     // A product with 5 pct tax
-    val productC = SimpleProduct[T](Map(usdollar -> new BigDecimal("1000")), taxCls5Pct)
+    val productC = SimpleProduct[T](new BigDecimal("1000"), taxCls5Pct)
     val taxedPriceC: Map[T, Long] = Map(taxCls5Pct -> 1000L)
     val itemC = CartContentItem(Line(productC, new BigDecimal("1")), Success(taxedPriceC))
 
@@ -64,7 +64,7 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
     val discountPrices: Map[T, Long] = Map(taxCls5Pct -> -100L, taxCls10Pct -> -100L)
     val discountItem = CartContentItem(discount, Success(discountPrices))
 
-    val cart = Cart(usdollar, PriceMode.PRICE_NET, List(itemA, itemB, itemC, discountItem))
+    val cart = Cart(PriceMode.PRICE_NET, List(itemA, itemB, itemC, discountItem))
 
     val taxMap = cart.taxes()
     taxMap.get(taxCls5Pct) should be(Some(50 - 5)) // itemB - discount
@@ -77,7 +77,7 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
     implicit val taxSystem = DefaultTaxSystem
 
     // a product for our cart...
-    val product = SimpleProduct[T](Map(usdollar -> new BigDecimal("100")), taxCls10Pct)
+    val product = SimpleProduct[T](new BigDecimal("100"), taxCls10Pct)
     val cartLine = new Line(product, new BigDecimal("1"))
 
     // .. which somehow produces a calculation error
@@ -88,7 +88,7 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
     }
 
     val items: Seq[CartItemCalculator[Line[_], T]] = Seq(errorCalculation)
-    val cart = Cart.fromItems[CartItemCalculator[Line[_], T], T](items, usdollar, PriceMode.PRICE_GROSS)
+    val cart = Cart.fromItems[CartItemCalculator[Line[_], T], T](items, PriceMode.PRICE_GROSS)
 
     cart match {
       case Left(errs) => errs.head should be(err)

@@ -1,9 +1,7 @@
 package plus.coding.ckrecom
 
 import java.math.{ BigDecimal, MathContext }
-import javax.money.CurrencyUnit
-import plus.coding.ckrecom.impl.LineCalc
-import plus.coding.ckrecom.impl.PriceService
+import plus.coding.ckrecom.impl.{ LineCalc, PriceService }
 import plus.coding.ckrecom.impl.Priceable._
 import scala.collection.immutable._
 
@@ -20,9 +18,6 @@ trait BasicCartSystem[T] {
   implicit val taxSystem: TaxSystem[T]
   implicit val mc: MathContext
 
-  // The cart must define one single currency
-  val currency: CurrencyUnit
-
   val priceMode: PriceMode.Value
 
   type CalcItem = CartItemCalculator[_, T]
@@ -33,7 +28,7 @@ trait BasicCartSystem[T] {
 
   def run: CartResult[T] = {
     val items = buildCalculationItems
-    Cart.fromItems[CalcItem, T](items, currency, priceMode)
+    Cart.fromItems[CalcItem, T](items, priceMode)
   }
 }
 

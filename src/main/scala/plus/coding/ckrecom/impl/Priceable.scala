@@ -2,7 +2,6 @@ package plus.coding.ckrecom
 package impl
 
 import java.math.BigDecimal
-import javax.money.MonetaryAmount
 
 /** A Priceable is something that, together with an ItemCalc,
   * can produce a final price which goes into the totals sum.
@@ -43,5 +42,5 @@ object Priceable {
   /** A Priceable:
     * A fixed-amount fee (amount is either a gross or net value)
     */
-  case class Fee(amount: MonetaryAmount, mode: PriceMode.Value)
+  case class Fee(amount: Long, mode: PriceMode.Value)
 }

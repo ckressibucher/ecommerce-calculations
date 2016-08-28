@@ -1,6 +1,5 @@
 package plus.coding.ckrecom
 
-import javax.money.CurrencyUnit
 import java.math.{ BigDecimal, MathContext }
 import scala.collection.immutable.{ Seq, Map }
 import scala.util.{ Try, Success, Failure }
@@ -10,12 +9,12 @@ import java.math.RoundingMode
 object Cart {
 
   /** Builds a cart from a sequence of not-yet-calculated items (`CartItemPre` instances),
-    * currency and tax price mode. This is the recommended *main* method to build and calculate
+    * and tax price mode. This is the recommended *main* method to build and calculate
     * a cart.
     *
     */
-  def fromItems[T <: CartItemCalculator[_, U], U: TaxSystem](preItems: Seq[T], cur: CurrencyUnit, mode: PriceMode.Value)(implicit mc: MathContext): CartResult[U] = {
-    val initCart = new Cart(cur, mode, Seq.empty)
+  def fromItems[T <: CartItemCalculator[_, U], U: TaxSystem](preItems: Seq[T], mode: PriceMode.Value)(implicit mc: MathContext): CartResult[U] = {
+    val initCart = new Cart(mode, Seq.empty)
     val cart = (initCart /: preItems) {
       case (c: Cart[U], item: CartItemCalculator[_, _]) => {
         val prices = item.finalPrices(c)
@@ -44,7 +43,6 @@ object Cart {
     */
   def debugString(cart: CartBase[_]): String = {
     val title = "Debugging cart:\n==============="
-    val cur = "Currency: " ++ cart.currency.toString()
     val pMode = "Price mode: " ++ cart.mode.toString()
     val contentStr = ("contents:\n---------\n" /: cart.contents) {
       case (acc, item) => acc ++ (" - " ++ item.toString + '\n')
@@ -53,7 +51,7 @@ object Cart {
       case (acc, (cls, amnt)) => acc ++ (cls.toString ++ " : " ++ amnt.toString() + '\n')
     }
     val totalSum = "Total: " ++ cart.grandTotal().toString()
-    List(title, cur, pMode, contentStr, taxesStr, totalSum).mkString("\n")
+    List(title, pMode, contentStr, taxesStr, totalSum).mkString("\n")
   }
 
 }
@@ -66,8 +64,6 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
   case class Contents[T](cs: Seq[CartContentItem[_, T]])
 
   val contents: Seq[CartContentItem[_, T]] = Seq.empty
-
-  val currency: CurrencyUnit
 
   val mode: PriceMode.Value
 
@@ -102,7 +98,6 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
   *
   */
 case class Cart[T: TaxSystem](
-  override val currency: CurrencyUnit,
   override val mode: PriceMode.Value,
   override val contents: Seq[CartContentItem[_, T]] = Seq.empty)(implicit val mc: MathContext)
     extends CartBase[T] {

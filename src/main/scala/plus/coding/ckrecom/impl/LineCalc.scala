@@ -6,8 +6,7 @@ import java.math.BigDecimal
 import scala.collection.immutable._
 import scala.util.Try
 
-/** Cal
-  * import plus.coding.ckrecom.impl.PriceServiceculate the final prices for an item line using a price service.
+/** Calculate the final prices for an item line using a price service.
   */
 class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService)(implicit val rounding: Rounding) extends CartItemCalculator[Line[T], T] {
 
@@ -19,9 +18,9 @@ class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService)(
     // price for qty == 1
     val singlePrice: Try[BigDecimal] = c.mode match {
       case PriceMode.PRICE_NET =>
-        priceService.priceFor(line.product, c.currency, line.qty)(taxSystem, c.mc)
+        priceService.priceFor(line.product, line.qty)(taxSystem, c.mc)
       case PriceMode.PRICE_GROSS =>
-        priceService.grossPriceFor(line.product, c.currency, line.qty)(taxSystem, c.mc)
+        priceService.grossPriceFor(line.product, line.qty)(taxSystem, c.mc)
     }
 
     // price for the whole line

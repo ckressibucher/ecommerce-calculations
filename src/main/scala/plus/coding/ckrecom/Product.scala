@@ -2,16 +2,18 @@ package plus.coding.ckrecom
 
 import java.math.BigDecimal
 import scala.collection.immutable.Seq
-import javax.money.CurrencyUnit
 
 /** A product defines as a bare minimum
   * - a tax class
-  * - a list of supported currencies
-  * - a net price for each of the supported currencies.
+  * - a net price
   *
   * Important: it's not intended to define a gross Price in a product,
   * to not depend on a tax system. The gross price can be calculated
   * by a PriceService.
+  *
+  * This product interface also does not define a currency. It is
+  * expected that all products work with the same currency. The
+  * user's implementation may convert currencies to achieve this.
   *
   * @tparam T type of a taxclass
   */
@@ -19,14 +21,9 @@ abstract class Product[T: TaxSystem] {
 
   /** Returns the base net price for this article.
     */
-  def netPrice(cur: CurrencyUnit): Option[BigDecimal]
+  def netPrice: Option[BigDecimal]
 
   /** The tax class defined for this product.
     */
   def taxClass: T
-
-  /** Returns a list of currencies for which a price is defined
-    * (or can be calculated somehow)
-    */
-  def currencies: Seq[CurrencyUnit]
 }

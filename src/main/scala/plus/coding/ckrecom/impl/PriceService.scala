@@ -4,7 +4,6 @@ package impl
 import java.math.BigDecimal
 import java.math.MathContext
 import scala.util.Try
-import javax.money.CurrencyUnit
 
 /** Helper for `LineCalc` to determine the price for a product.
   */
@@ -22,9 +21,9 @@ trait PriceService {
     *
     * The request may fail, e.g. if the currency is not supported.
     */
-  def priceFor[T](product: Product[T], cur: CurrencyUnit, qty: BigDecimal = new BigDecimal(1))(implicit ts: TaxSystem[T], mc: MathContext): Try[BigDecimal] = {
+  def priceFor[T](product: Product[T], qty: BigDecimal = new BigDecimal(1))(implicit ts: TaxSystem[T], mc: MathContext): Try[BigDecimal] = {
     Try {
-      product.netPrice(cur).get
+      product.netPrice.get
     }
   }
 
@@ -38,9 +37,9 @@ trait PriceService {
     *
     * The request may fail, e.g. if the currency is not supported.
     */
-  def grossPriceFor[T](product: Product[T], cur: CurrencyUnit, qty: BigDecimal = new BigDecimal(1))(implicit ts: TaxSystem[T], mc: MathContext): Try[BigDecimal] = {
+  def grossPriceFor[T](product: Product[T], qty: BigDecimal = new BigDecimal(1))(implicit ts: TaxSystem[T], mc: MathContext): Try[BigDecimal] = {
     val taxSystem = implicitly[TaxSystem[T]]
-    priceFor(product, cur, qty) map { netAmount: BigDecimal =>
+    priceFor(product, qty) map { netAmount: BigDecimal =>
       val rate = taxSystem.rate(product.taxClass)
       rate.grossAmount(netAmount)
     }
