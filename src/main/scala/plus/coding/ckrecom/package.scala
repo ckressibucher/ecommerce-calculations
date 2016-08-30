@@ -3,8 +3,6 @@ package plus.coding
 import scala.collection.immutable._
 
 package object ckrecom {
-  class CalculationException(msg: String = null, prev: Throwable = null) extends java.lang.RuntimeException(msg, prev)
-
   /** The result of a price calculation.
     *
     * This encodes:

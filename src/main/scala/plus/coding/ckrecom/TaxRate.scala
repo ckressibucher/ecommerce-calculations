@@ -38,7 +38,9 @@ case class TaxRate(num: Int, denom: Int) {
 }
 
 object TaxRate {
+  // scalastyle:off magic.number
   def free: TaxRate = new TaxRate(0, 100)
+  // scalastyle:on magic.number
 
   implicit object TaxRateOrdering extends Ordering[TaxRate] {
     override def compare(x: TaxRate, y: TaxRate): Int = {

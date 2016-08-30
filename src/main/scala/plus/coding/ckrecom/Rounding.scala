@@ -33,5 +33,5 @@ object Rounding {
 
   // rounds to a multiple of 5, e.g. for swiss francs/ rappen, using FLOOR rounding
   // mode (so a price of 99 cents gets 95 cents)
-  def to5Cents(implicit mc: MathContext) = new RoundingToFive(RoundingMode.FLOOR)
+  def to5Cents(implicit mc: MathContext): RoundingToFive = new RoundingToFive(RoundingMode.FLOOR)
 }
