@@ -8,8 +8,11 @@ import scala.collection.immutable._
   * should be enough to calculate the cart (see the `CartSystem` trait).
   * The resulting prices are later used as the
   * base for further calculations like discounts or taxes.
+  *
+  * @tparam P The "priceable" thing that should be put into the cart
+  * @tparam T The tax class type
   */
-abstract class CartItemCalculator[P, T: TaxSystem] {
+abstract class CartItemCalculator[P, T] {
 
   /** Returns the wrapped priceable
     */

@@ -16,7 +16,10 @@ package object ckrecom {
     */
   type PriceResult[T] = Either[String, Map[T, Long]]
 
-  case class CartContentItem[P, T: TaxSystem](priceable: P, results: PriceResult[T])
+  /** @tparam P The "priceable" thing that should be put into the cart
+    * @tparam T The tax class type
+    */
+  case class CartContentItem[P, T](priceable: P, results: PriceResult[T])
 
   type TaxTotals[T] = Map[T, Long]
 

@@ -17,7 +17,7 @@ import scala.collection.immutable.Seq
   *
   * @tparam T type of a taxclass
   */
-abstract class Product[T: TaxSystem] {
+abstract class Product[T] {
 
   /** Returns the base net price for this article.
     */

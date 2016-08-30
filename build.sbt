@@ -4,6 +4,8 @@ version      := "1.0-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
+scapegoatVersion := "1.2.1"
+
 scalacOptions := Seq(
   "-unchecked",
   "-deprecation",

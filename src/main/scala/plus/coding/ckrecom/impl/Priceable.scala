@@ -10,12 +10,14 @@ import java.math.BigDecimal
 object Priceable {
   /** A Priceable:
     * A cart line holding a product and a quantity
+    *
+    * @tparam T The tax class type
     */
-  case class Line[T: TaxSystem](product: Product[T], qty: BigDecimal)
+  case class Line[T](product: Product[T], qty: BigDecimal)
 
   object Line {
     /** constructor using `Int` value as quantity */
-    def apply[T: TaxSystem](product: Product[T], qty: Int): Line[T] = {
+    def apply[T](product: Product[T], qty: Int): Line[T] = {
       val qtyBD = new BigDecimal(qty)
       apply(product, qtyBD)
     }
