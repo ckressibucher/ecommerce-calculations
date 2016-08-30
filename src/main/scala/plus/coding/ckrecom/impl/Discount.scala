@@ -27,7 +27,6 @@ class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount)(implicit val rou
 
   def finalPrices(c: CartBase[T]): PriceResult[T] = {
     val productPricesByTaxClass = linePricesByTaxClass(c)
-    val totalAmount = productPricesByTaxClass.map(_._2).foldLeft(0L) { _ + _ }
 
     val prices = productPricesByTaxClass map {
       case (taxClass, tcTotal) => {

@@ -19,6 +19,7 @@ class TaxRateSpec extends FlatSpec with Matchers {
     intercept[IllegalArgumentException] {
       TaxRate(10, 0) // zero denominator..
     }
+    () // don't return anything..
   }
 
   it should "calculate the tax amount" in {

@@ -14,7 +14,6 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
   implicit val mc = MathContext.DECIMAL32
 
   "A cart" should "be constructed from a list of items, currency, and price mode" in {
-    type T = DefaultTaxClass
     implicit val taxSystem = DefaultTaxSystem
 
     val items = Seq.empty

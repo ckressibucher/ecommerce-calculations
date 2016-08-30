@@ -17,7 +17,6 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
 
   "The FixedDiscount calculator" should "subtract a fixed amount" in {
     implicit val taxsystem = taxSystemDefault
-    type T = DefaultTaxClass
     val fixedDisc = Priceable.FixedDiscount("ten-less", bigDec("10"))
     val calculator = new FixedDiscountCalc(fixedDisc, taxFree)
 

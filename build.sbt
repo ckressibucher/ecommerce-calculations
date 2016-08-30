@@ -4,7 +4,16 @@ version      := "1.0-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
-scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
+scalacOptions := Seq(
+  "-unchecked",
+  "-deprecation",
+  "-feature",
+  "-encoding", "utf8",
+  "-Yno-adapted-args",
+  "-Ywarn-value-discard",
+  "-Ywarn-dead-code",
+  "-Ywarn-unused",
+  "-Ywarn-numeric-widen")
 
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
