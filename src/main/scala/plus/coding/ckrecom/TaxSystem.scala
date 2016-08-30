@@ -1,6 +1,8 @@
 package plus.coding.ckrecom
 
 /** A `TaxSystem` is used to calculate a `TaxRate` for every supported tax class `C`.
+  * Note that `C` instances are used as Map keys to identify tax classes, so you
+  * probably want to override `hashCode` and `equals` methods for `C` or use case classes.
   *
   * (the idea of using a `TaxSystem[C]` over a simple trait `TaxClass` is, that a
   * TaxSystem[C] better expresses the idea of a system containing a set of supported
