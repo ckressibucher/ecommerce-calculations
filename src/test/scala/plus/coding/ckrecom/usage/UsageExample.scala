@@ -95,7 +95,7 @@ object UsageExample extends App {
     case Right(c) => println(Cart.debugString(c))
     case Left(errs) => {
       println("The cart could not be calculated successfully. Errors:")
-      errs.foreach { x => println(x.getMessage) }
+      errs.foreach { println(_) }
     }
   }
 }

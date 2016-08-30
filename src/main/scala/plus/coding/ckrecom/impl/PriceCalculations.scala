@@ -26,7 +26,7 @@ trait PriceCalculations {
   def pricesByTaxClass[T: TaxSystem](priceResults: Seq[PriceResult[T]], cart: CartBase[T]): Map[T, Long] = {
     val init = Map[T, Long]()
     (init /: priceResults) {
-      case (acc, Success(prices)) =>
+      case (acc, Right(prices)) =>
         prices.foldLeft(acc) {
           case (accLine, (taxCls, amnt)) => {
             val current = accLine.getOrElse(taxCls, 0L)
@@ -44,7 +44,7 @@ trait PriceCalculations {
     val lnPrices = linePrices(cart)
     val taxSystem = implicitly[TaxSystem[T]]
     val ts: Seq[T] = (lnPrices.collect {
-      case Success(prices) => prices.keys
+      case Right(prices) => prices.keys
     }).flatten
 
     val init: Option[T] = None

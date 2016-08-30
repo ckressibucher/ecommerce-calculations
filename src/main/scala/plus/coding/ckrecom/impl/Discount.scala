@@ -4,7 +4,6 @@ package impl
 import java.math.BigDecimal
 
 import scala.collection.immutable._
-import scala.util.Success
 
 import plus.coding.ckrecom.impl.Priceable._
 
@@ -16,7 +15,7 @@ class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount, fallbackTaxC
 
   def finalPrices(c: CartBase[T]): PriceResult[T] = {
     val taxClass = cheapestTaxClass(c).getOrElse(fallbackTaxClass)
-    Success(Map(taxClass -> (-1 * priceable.amount)))
+    Right(Map(taxClass -> (-1 * priceable.amount)))
   }
 
 }
@@ -37,7 +36,7 @@ class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount)(implicit val rou
         (taxClass, rounding(discAmount.negate()))
       }
     }
-    Success(prices)
+    Right(prices)
   }
 
 }

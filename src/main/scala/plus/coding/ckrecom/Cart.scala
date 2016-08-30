@@ -2,7 +2,6 @@ package plus.coding.ckrecom
 
 import java.math.{ BigDecimal, MathContext }
 import scala.collection.immutable.{ Seq, Map }
-import scala.util.{ Try, Success, Failure }
 import plus.coding.ckrecom.impl.PriceCalculations
 import java.math.RoundingMode
 
@@ -31,11 +30,11 @@ object Cart {
     *
     * Returns a list of errors (or an empty list if the cart is valid).
     */
-  def validate[T](cart: CartBase[T]): Seq[Throwable] = {
-    val result = Seq.empty[Throwable]
+  def validate[T](cart: CartBase[T]): Seq[String] = {
+    val result = Seq.empty[String]
     (result /: cart.contents) {
-      case (errs, CartContentItem(_, Success(_))) => errs
-      case (errs, CartContentItem(_, Failure(e))) => e +: errs
+      case (errs, CartContentItem(_, Right(_))) => errs
+      case (errs, CartContentItem(_, Left(e)))  => e +: errs
     }
   }
 
@@ -86,8 +85,8 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
     val itemSums = for {
       item <- contents
       prices = item.results match {
-        case Failure(_)                => 0L
-        case Success(ps: Map[_, Long]) => ps.values.sum
+        case Left(_)                 => 0L
+        case Right(ps: Map[_, Long]) => ps.values.sum
       }
     } yield prices
     itemSums.sum

@@ -4,7 +4,6 @@ package impl
 import org.scalatest._
 import java.math.BigDecimal
 import scala.collection.immutable._
-import scala.util.{ Try, Success, Failure }
 import Priceable.Line
 
 import TaxSystem._
@@ -23,7 +22,7 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
     val calculator = new FixedDiscountCalc(fixedDisc, taxFree)
 
     val cart = Cart(PriceMode.PRICE_NET)
-    calculator.finalPrices(cart) should be(Success(Map(taxFree -> -10L)))
+    calculator.finalPrices(cart) should be(Right(Map(taxFree -> -10L)))
   }
 
   "The PercentageDiscount calculator" should "apply percentage prices per tax class" in {
@@ -44,6 +43,6 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
     val expectedPrices: Map[T, Long] = Map(
       FreeTax -> -10L,
       SimpleTax(1, 10) -> -10L)
-    discPrices should be(Success(expectedPrices))
+    discPrices should be(Right(expectedPrices))
   }
 }

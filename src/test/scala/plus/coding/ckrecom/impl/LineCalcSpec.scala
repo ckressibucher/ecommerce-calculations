@@ -5,7 +5,6 @@ import org.scalatest._
 import java.math.MathContext
 import java.math.BigDecimal
 import scala.collection.immutable._
-import scala.util.{ Try, Failure, Success }
 
 import Priceable.Line
 import TaxSystem._
@@ -40,7 +39,7 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     val line = Line(buildSimpleProduct[T](price = "100", taxCls10Pct), bigDec("1"))
     val cart = Cart.fromItems(Seq.empty, PriceMode.PRICE_GROSS)
     val lineCalc = lineSumCalculator(line)
-    lineCalc.finalPrices(cart.right.get) should be(Success(Map(taxCls10Pct -> 110L)))
+    lineCalc.finalPrices(cart.right.get) should be(Right(Map(taxCls10Pct -> 110L)))
   }
 
   it should "allow mixed tax classes" in {
@@ -65,6 +64,6 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     val line = Line(buildSimpleProduct[T](price = "99", taxFree), bigDec("1"))
     val cart = Cart.fromItems(Seq.empty, PriceMode.PRICE_NET)
     val lineCalc = new LineCalc(line, new TestPriceService)
-    lineCalc.finalPrices(cart.right.get) should be(Success(Map(taxFree -> 95L)))
+    lineCalc.finalPrices(cart.right.get) should be(Right(Map(taxFree -> 95L)))
   }
 }
