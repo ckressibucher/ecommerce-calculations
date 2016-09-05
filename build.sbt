@@ -1,3 +1,5 @@
+organization := "plus.coding"
+
 name         := "ckrecom"
 
 version      := "1.0-SNAPSHOT"

@@ -12,9 +12,9 @@ object Cart {
     * a cart.
     *
     */
-  def fromItems[T <: CartItemCalculator[_, U], U: TaxSystem](preItems: Seq[T], mode: PriceMode.Value)(implicit mc: MathContext): CartResult[U] = {
+  def fromItems[T <: CartItemCalculator[_, U], U: TaxSystem](items: Seq[T], mode: PriceMode.Value)(implicit mc: MathContext): CartResult[U] = {
     val initCart = new Cart(mode, Seq.empty)
-    val cart = (initCart /: preItems) {
+    val cart = (initCart /: items) {
       case (c: Cart[U], item: CartItemCalculator[_, _]) => {
         val prices = item.finalPrices(c)
         c.addContent(CartContentItem(item.priceable, prices))

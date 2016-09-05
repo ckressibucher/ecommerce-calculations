@@ -3,6 +3,13 @@ package plus.coding
 import scala.collection.immutable._
 
 package object ckrecom {
+
+  object PriceMode extends Enumeration {
+    val PRICE_NET, PRICE_GROSS = Value
+  }
+
+  type TaxTotals[T] = Map[T, Long]
+
   /** The result of a price calculation.
     *
     * This encodes:
@@ -14,14 +21,12 @@ package object ckrecom {
     * represent a useful amount of money, and should thus be integral numbers
     * (representing the smallest unit of the currency).
     */
-  type PriceResult[T] = Either[String, Map[T, Long]]
+  type PriceResult[T] = Either[String, TaxTotals[T]]
 
   /** @tparam P The "priceable" thing that should be put into the cart
     * @tparam T The tax class type
     */
   case class CartContentItem[P, T](priceable: P, results: PriceResult[T])
-
-  type TaxTotals[T] = Map[T, Long]
 
   type CartResult[T] = Either[Seq[String], CartBase[T]]
 
