@@ -59,8 +59,6 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
   implicit val mc: MathContext
   val taxSystem = implicitly[TaxSystem[T]]
 
-  case class Contents[T](cs: Seq[CartContentItem[_, T]])
-
   val contents: Seq[CartContentItem[_, T]] = Seq.empty
 
   val mode: PriceMode.Value
