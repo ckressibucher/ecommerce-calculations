@@ -13,9 +13,7 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
 
   implicit val mc = java.math.MathContext.DECIMAL32
   implicit val rounding = Rounding.defaultRounding
-
-  def lineSumCalculator[T: TaxSystem](line: Line[T]): LineCalc[T] =
-    new LineCalc(line, new TestPriceService)
+  implicit val productImpl = defaultProductImpl
 
   "The LineSum cart calculator" should "add prices for all line items" in {
     implicit val taxsystem = taxSystemDefault
@@ -24,8 +22,8 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     val productA = SimpleProduct[T](new BigDecimal("100"), taxCls10Pct)
     val productB = SimpleProduct[T](new BigDecimal("50"), taxCls10Pct)
     val lineItems = List(productA, productB) map { p: SimpleProduct[T] =>
-      val line = Line(p, bigDec("1"))
-      lineSumCalculator(line)
+      val line = Line(p, 1)
+      new LineCalc(line)
     }
 
     val cart: CartResult[T] = Cart.fromItems[CartItemCalculator[_, T], T](lineItems, PriceMode.PRICE_NET)
@@ -36,9 +34,9 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     implicit val taxsystem = taxSystemDefault
     type T = DefaultTaxClass
 
-    val line = Line(buildSimpleProduct[T](price = "100", taxCls10Pct), bigDec("1"))
+    val line: Line[T, SimpleProduct[T]] = Line[T, SimpleProduct[T]](SimpleProduct(price = "100", taxCls10Pct), 1)
     val cart = Cart.fromItems(Seq.empty, PriceMode.PRICE_GROSS)
-    val lineCalc = lineSumCalculator(line)
+    val lineCalc = new LineCalc(line)
     lineCalc.finalPrices(cart.right.get) should be(Right(Map(taxCls10Pct -> 110L)))
   }
 
@@ -47,9 +45,9 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
     type T = DefaultTaxClass
 
     val products = List(
-      Line(buildSimpleProduct[T]("100", taxFree), bigDec("2")), // line sum: 200
-      Line(buildSimpleProduct[T]("50", taxCls10Pct), bigDec("1"))) // line sum: 55
-    val preItems: List[CartItemCalculator[_, T]] = products map { lineSumCalculator(_) }
+      Line(SimpleProduct[T]("100", taxFree), bigDec("2")), // line sum: 200
+      Line(SimpleProduct[T]("50", taxCls10Pct), bigDec("1"))) // line sum: 55
+    val preItems: List[CartItemCalculator[_, T]] = products map { new LineCalc(_) }
 
     val cart = Cart.fromItems[CartItemCalculator[_, T], T](preItems, PriceMode.PRICE_GROSS)
     cart.right.get.grandTotal() should be(255L)
@@ -61,9 +59,9 @@ class LineCalcSpec extends FlatSpec with Matchers with CartTestHelper {
 
     type T = DefaultTaxClass
 
-    val line = Line(buildSimpleProduct[T](price = "99", taxFree), bigDec("1"))
+    val line = Line(SimpleProduct[T](price = "99", taxFree), bigDec("1"))
     val cart = Cart.fromItems(Seq.empty, PriceMode.PRICE_NET)
-    val lineCalc = new LineCalc(line, new TestPriceService)
+    val lineCalc = new LineCalc(line)
     lineCalc.finalPrices(cart.right.get) should be(Right(Map(taxFree -> 95L)))
   }
 }

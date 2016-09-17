@@ -1,7 +1,7 @@
 package plus.coding.ckrecom
 
-import java.math.{ BigDecimal, MathContext }
-import plus.coding.ckrecom.impl.{ LineCalc, PriceService }
+import java.math.MathContext
+import plus.coding.ckrecom.impl.LineCalc
 import plus.coding.ckrecom.impl.Priceable._
 import scala.collection.immutable._
 
@@ -34,22 +34,20 @@ trait BasicCartSystem[T] {
 
 /** Extends the BasicCartSystem for the common case of carts that include `LineCalc` items
   */
-trait CartSystem[T] extends BasicCartSystem[T] {
-  // The prices are not fetched directly from the articles, but are using a price service,
-  // which may apply additional rules to the basic prices.
-  // (we use the default implementation)
-  val priceService = PriceService.DefaultPriceService
+trait CartSystem[T, P] extends BasicCartSystem[T] {
+
+  implicit val productImpl: Product[T, P]
 
   // rounding strategy used to round line totals
   def lineRounding: Rounding = Rounding.defaultRounding
 
-  def buildCartLines: Seq[Line[T]]
+  def buildCartLines: Seq[Line[T, P]]
 
   def buildAdjustmentItems: Seq[CalcItem] = Seq.empty
 
   override def buildCalculationItems: Seq[CalcItem] = {
     implicit val r = lineRounding
-    val lines = buildCartLines map { l: Line[T] => new LineCalc(l, priceService) }
+    val lines = buildCartLines map { ln: Line[T, P] => new LineCalc(ln) }
     lines ++ buildAdjustmentItems
   }
 

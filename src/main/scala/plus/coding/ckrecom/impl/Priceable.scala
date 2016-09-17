@@ -12,12 +12,13 @@ object Priceable {
     * A cart line holding a product and a quantity
     *
     * @tparam T The tax class type
+    * @tparam P The product type
     */
-  case class Line[T](product: Product[T], qty: BigDecimal)
+  case class Line[T, P](product: P, qty: BigDecimal)(implicit val p: Product[T, P])
 
   object Line {
     /** constructor using `Int` value as quantity */
-    def apply[T](product: Product[T], qty: Int): Line[T] = {
+    def apply[T, P](product: P, qty: Int)(implicit p: Product[T, P]): Line[T, P] = {
       val qtyBD = new BigDecimal(qty)
       apply(product, qtyBD)
     }

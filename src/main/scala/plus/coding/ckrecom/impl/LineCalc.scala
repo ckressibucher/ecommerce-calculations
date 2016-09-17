@@ -2,27 +2,35 @@ package plus.coding.ckrecom
 package impl
 
 import plus.coding.ckrecom.impl.Priceable._
-import java.math.BigDecimal
-import scala.collection.immutable._
+import java.math.{BigDecimal, MathContext}
 
-/** Calculate the final prices for an item line using a price service.
+import scala.collection.immutable._
+import plus.coding.ckrecom.Product.ProductOps
+
+/** Calculate the final prices for an item line using a [[Product]] implementation
   */
-class LineCalc[T: TaxSystem](val line: Line[T], val priceService: PriceService)(implicit val rounding: Rounding) extends CartItemCalculator[Line[T], T] {
+class LineCalc[T: TaxSystem, P](val line: Line[T, P])
+                               (implicit val rounding: Rounding, val pev: Product[T, P], val mc: MathContext)
+  extends CartItemCalculator[Line[T, P], T] {
 
   val priceable = line
 
   val taxSystem = implicitly[TaxSystem[T]]
 
+  def optionPriceToEither(price: Option[BigDecimal]): Either[String, BigDecimal] = price match {
+    case Some(p) => Right(p)
+    case None => Left("The product has no price")
+  }
+
   def finalPrices(c: CartBase[T]): PriceResult[T] = {
-    // price for qty == 1
-    val singlePrice: Either[String, BigDecimal] = c.mode match {
+    val unitPrice: Either[String, BigDecimal] = c.mode match {
       case PriceMode.PRICE_NET =>
-        priceService.priceFor(line.product, line.qty)(taxSystem, c.mc)
+        optionPriceToEither( line.product.netPrice(line.qty) )
       case PriceMode.PRICE_GROSS =>
-        priceService.grossPriceFor(line.product, line.qty)(taxSystem, c.mc)
+        optionPriceToEither( line.product.grossPrice(line.qty))
     }
 
-    singlePrice.right map { p: BigDecimal =>
+    unitPrice.right map { p: BigDecimal =>
       // price for the whole line
       val linePrice = p.multiply(line.qty)
       // round the price and wrap it into the required PriceResult structure

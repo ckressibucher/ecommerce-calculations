@@ -1,11 +1,13 @@
 package plus.coding.ckrecom
 package usage
 
-import java.math.{ BigDecimal, MathContext }
+import java.math.{BigDecimal, MathContext}
+
 import plus.coding.ckrecom.impl.Priceable._
 import plus.coding.ckrecom.impl._
+
 import scala.collection.immutable._
-import scala.util.{ Left, Right }
+import scala.util.{Left, Right}
 
 /** Usage example how to create and calculate a cart.
   *
@@ -22,6 +24,9 @@ object UsageExample extends App {
   // We use the `DefaultTaxClass` and `DefaultTaxSystem` here.
   type TaxCls = TaxSystem.DefaultTaxClass
   implicit val taxSystem = TaxSystem.DefaultTaxSystem
+
+  // 10 pct tax class
+  val tax10Pct: TaxCls = TaxSystem.SimpleTax(10, 100)
 
   // A type alias to simplify some type annotations.
   // A `CartItemPre` holds some cart content (e.g. a product) and
@@ -40,18 +45,15 @@ object UsageExample extends App {
     * library, as it's expected that the user needs to define some more
     * data for his products.
     */
-  case class Article(name: String, price: Cents) extends Product[TaxCls] {
-    def netPrice: Option[java.math.BigDecimal] = Some(new BigDecimal(price))
+  case class Article(name: String, price: Cents, taxClass: TaxCls)
 
-    def taxClass: TaxSystem.DefaultTaxClass = new TaxSystem.SimpleTax(10, 100) // 10 % tax
-  }
 
   /** By implementing a `CartSystem`, we define all properties needed by
     * the library to do its calculations.
     *
     * See the `CartSystem` type to see what abstract members it defines.
     */
-  val exampleProductsAndDiscounts = new CartSystem[TaxCls] {
+  val exampleProductsAndDiscounts = new CartSystem[TaxCls, Article] {
 
     // for some (java) BigDecimal calculations, we need a `MathContext` available
     implicit val mc: MathContext = MathContext.DECIMAL128
@@ -60,14 +62,22 @@ object UsageExample extends App {
 
     val priceMode: PriceMode.Value = PriceMode.PRICE_GROSS
 
+    implicit val productImpl: Product[TaxCls, Article] = new Product[TaxCls, Article] {
+      def netPrice(product: Article, qty: BigDecimal): Option[BigDecimal] =
+        Some(new BigDecimal(product.price))
+
+      def taxClass(product: Article): TaxCls =
+        product.taxClass
+    }
+
     // here we define the cart lines for our articles.
     // we only need to define the lines containing product and quantity,
     // the `CartSystem` uses the default calculation logic (i.e. builds a `LineCalc` item
     // from the `Line`s).
-    override def buildCartLines: Seq[Line[TaxCls]] = {
+    override def buildCartLines: List[Line[TaxCls, Article]] = {
       // We start with defining some articles:
-      val chair = Article("chair", 80 * 100) // a chair with a price of 80 USD (net price!)
-      val table = Article("table", 250 * 100) // a table, 250 USD
+      val chair = Article("chair", 80 * 100, tax10Pct) // a chair with a price of 80 USD (net price!)
+      val table = Article("table", 250 * 100, tax10Pct) // a table, 250 USD
       // Next, we create cart lines by defining quantities for each product we want to buy
       // (1 table and 4 chairs)
       Line(chair, 4) :: Line(table, 1) :: Nil
@@ -95,7 +105,9 @@ object UsageExample extends App {
     case Right(c) => println(Cart.debugString(c))
     case Left(errs) => {
       println("The cart could not be calculated successfully. Errors:")
-      errs.foreach { println(_) }
+      errs.foreach {
+        println(_)
+      }
     }
   }
 }

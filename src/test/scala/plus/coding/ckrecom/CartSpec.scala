@@ -13,6 +13,8 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
 
   implicit val mc = MathContext.DECIMAL32
 
+  implicit val productImpl = defaultProductImpl
+
   "A cart" should "be constructed from a list of items, currency, and price mode" in {
     implicit val taxSystem = DefaultTaxSystem
 
@@ -80,13 +82,13 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
 
     // .. which somehow produces a calculation error
     val err = "some error"
-    val errorCalculation = new CartItemCalculator[Line[_], T] {
+    val errorCalculation = new CartItemCalculator[Line[_, _], T] {
       def priceable = cartLine
       def finalPrices(c: CartBase[T]): PriceResult[T] = Left(err)
     }
 
-    val items: Seq[CartItemCalculator[Line[_], T]] = Seq(errorCalculation)
-    val cart = Cart.fromItems[CartItemCalculator[Line[_], T], T](items, PriceMode.PRICE_GROSS)
+    val items: Seq[CartItemCalculator[Line[_, _], T]] = Seq(errorCalculation)
+    val cart = Cart.fromItems[CartItemCalculator[Line[_, _], T], T](items, PriceMode.PRICE_GROSS)
 
     cart match {
       case Left(errs) => errs.head should be(err)
