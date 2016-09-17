@@ -1,10 +1,9 @@
 package plus.coding.ckrecom
 package impl
 
-import scala.collection.immutable.Seq
-import scala.util.Success
-
 import plus.coding.ckrecom.impl.Priceable._
+
+import scala.collection.immutable.Seq
 
 /** A helper for price calculations.
   */
@@ -52,7 +51,7 @@ trait PriceCalculations {
       case (acc @ Some(accCls), tcls) =>
         val rateAcc = taxSystem.rate(accCls)
         val rateNew = taxSystem.rate(tcls)
-        if (rateAcc < rateNew) acc else (Some(tcls))
+        if (rateAcc < rateNew) acc else Some(tcls)
     }
   }
 

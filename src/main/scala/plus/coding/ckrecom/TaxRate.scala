@@ -1,6 +1,6 @@
 package plus.coding.ckrecom
 
-import java.math.{ BigDecimal, MathContext }
+import java.math.{BigDecimal, MathContext}
 
 case class TaxRate(num: Int, denom: Int) {
   require(denom != 0)

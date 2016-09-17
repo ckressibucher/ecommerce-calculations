@@ -1,9 +1,10 @@
 package plus.coding.ckrecom
 
-import java.math.{ BigDecimal, MathContext }
-import scala.collection.immutable.{ Seq, Map }
+import java.math.{MathContext, RoundingMode}
+
 import plus.coding.ckrecom.impl.PriceCalculations
-import java.math.RoundingMode
+
+import scala.collection.immutable.{Map, Seq}
 
 object Cart {
 

@@ -1,11 +1,12 @@
 package plus.coding.ckrecom
 package impl
 
-import plus.coding.ckrecom.impl.Priceable._
 import java.math.{BigDecimal, MathContext}
 
-import scala.collection.immutable._
 import plus.coding.ckrecom.Product.ProductOps
+import plus.coding.ckrecom.impl.Priceable._
+
+import scala.collection.immutable._
 
 /** Calculate the final prices for an item line using a [[Product]] implementation
   */

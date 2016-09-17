@@ -1,7 +1,5 @@
 package plus.coding.ckrecom
 
-import scala.collection.immutable._
-
 /** A priceable together with the definition how to calculate final prices.
   *
   * A list of these `CartItemCalculator`s, together with a cart definition

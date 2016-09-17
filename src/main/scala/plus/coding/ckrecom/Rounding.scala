@@ -1,6 +1,6 @@
 package plus.coding.ckrecom
 
-import java.math.{ BigDecimal, RoundingMode, MathContext }
+import java.math.{BigDecimal, MathContext, RoundingMode}
 
 /** Responsible to round a price amount. Input and output
   * denote the amount of cents (or otherwise smallest unit of a currency).

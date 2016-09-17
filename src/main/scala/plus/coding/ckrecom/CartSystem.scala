@@ -1,8 +1,10 @@
 package plus.coding.ckrecom
 
 import java.math.MathContext
+
 import plus.coding.ckrecom.impl.LineCalc
 import plus.coding.ckrecom.impl.Priceable._
+
 import scala.collection.immutable._
 
 /** A `BasicCartSystem` defines abstract members which are required
