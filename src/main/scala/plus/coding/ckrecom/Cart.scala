@@ -15,10 +15,9 @@ object Cart {
   def fromItems[T <: CartItemCalculator[_, U], U: TaxSystem](items: Seq[T], mode: PriceMode.Value)(implicit mc: MathContext): CartResult[U] = {
     val initCart = new Cart(mode, Seq.empty)
     val cart = (initCart /: items) {
-      case (c: Cart[U], item: CartItemCalculator[_, _]) => {
+      case (c: Cart[U], item: CartItemCalculator[_, _]) =>
         val prices = item.finalPrices(c)
         c.addContent(CartContentItem(item.priceable, prices))
-      }
     }
     validate(cart) match {
       case Nil  => Right(cart)
@@ -68,14 +67,13 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
 
   def taxes(rounding: RoundingMode = RoundingMode.HALF_UP): TaxTotals[T] = {
     allPricesByTaxClass(this) map {
-      case (taxCls, price) => {
+      case (taxCls, price) =>
         val rate = taxSystem.rate(taxCls)
         val newPrice = mode match {
           case PriceMode.PRICE_GROSS => rate.taxValueFromGross(price)
           case PriceMode.PRICE_NET   => rate.taxValue(price)
         }
         (taxCls, newPrice.setScale(0, rounding).longValue())
-      }
     }
   }
 

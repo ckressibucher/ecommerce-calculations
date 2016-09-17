@@ -28,10 +28,9 @@ trait PriceCalculations {
     (init /: priceResults) {
       case (acc, Right(prices)) =>
         prices.foldLeft(acc) {
-          case (accLine, (taxCls, amnt)) => {
+          case (accLine, (taxCls, amnt)) =>
             val current = accLine.getOrElse(taxCls, 0L)
             accLine.updated(taxCls, current + amnt)
-          }
         }
       case (acc, _) => acc
     }
@@ -43,18 +42,17 @@ trait PriceCalculations {
 
     val lnPrices = linePrices(cart)
     val taxSystem = implicitly[TaxSystem[T]]
-    val ts: Seq[T] = (lnPrices.collect {
+    val ts: Seq[T] = lnPrices.collect {
       case Right(prices) => prices.keys
-    }).flatten
+    }.flatten
 
     val init: Option[T] = None
     (init /: ts) {
       case (None, tcls) => Some(tcls)
-      case (acc @ Some(accCls), tcls) => {
+      case (acc @ Some(accCls), tcls) =>
         val rateAcc = taxSystem.rate(accCls)
         val rateNew = taxSystem.rate(tcls)
         if (rateAcc < rateNew) acc else (Some(tcls))
-      }
     }
   }
 

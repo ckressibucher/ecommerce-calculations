@@ -29,11 +29,10 @@ class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount)(implicit val rou
     val productPricesByTaxClass = linePricesByTaxClass(c)
 
     val prices = productPricesByTaxClass map {
-      case (taxClass, tcTotal) => {
+      case (taxClass, tcTotal) =>
         val pct100 = new BigDecimal("100")
         val discAmount = (new BigDecimal(tcTotal * priceable.pct)).divide(pct100, c.mc)
         (taxClass, rounding(discAmount.negate()))
-      }
     }
     Right(prices)
   }
