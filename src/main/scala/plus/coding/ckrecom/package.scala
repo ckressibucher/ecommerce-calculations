@@ -26,7 +26,7 @@ package object ckrecom {
   /** @tparam P The "priceable" thing that should be put into the cart
     * @tparam T The tax class type
     */
-  case class CartContentItem[P, T](priceable: P, results: PriceResult[T])
+  case class CartContentItem[P, T](priceable: P, results: PriceResult[T], isMainItem: Boolean)
 
   type CartResult[T] = Either[Seq[String], CartBase[T]]
 

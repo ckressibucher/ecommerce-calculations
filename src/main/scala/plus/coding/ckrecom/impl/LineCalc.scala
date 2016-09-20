@@ -38,4 +38,6 @@ class LineCalc[T: TaxSystem, P](val line: Line[T, P])
       Map(line.product.taxClass -> rounding(linePrice))
     }
   }
+
+  def isMainItem: Boolean = true
 }

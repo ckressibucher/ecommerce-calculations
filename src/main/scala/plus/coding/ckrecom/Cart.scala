@@ -18,7 +18,7 @@ object Cart {
     val cart = (initCart /: items) {
       case (c: Cart[U], item: CartItemCalculator[_, _]) =>
         val prices = item.finalPrices(c)
-        c.addContent(CartContentItem(item.priceable, prices))
+        c.addContent(CartContentItem(item.priceable, prices, item.isMainItem))
     }
     validate(cart) match {
       case Nil  => Right(cart)
@@ -33,8 +33,8 @@ object Cart {
   def validate[T](cart: CartBase[T]): Seq[String] = {
     val result = Seq.empty[String]
     (result /: cart.contents) {
-      case (errs, CartContentItem(_, Right(_))) => errs
-      case (errs, CartContentItem(_, Left(e)))  => e +: errs
+      case (errs, CartContentItem(_, Right(_), _)) => errs
+      case (errs, CartContentItem(_, Left(e), _))  => e +: errs
     }
   }
 

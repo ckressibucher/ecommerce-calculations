@@ -11,8 +11,8 @@ trait PriceCalculations {
 
   /** Analyzes the final prices of all `Line` items, and builds a map TaxClass -> Summed amounts */
   def linePricesByTaxClass[T: TaxSystem](cart: CartBase[T]): Map[T, Long] = {
-    val lnPrices = linePrices(cart)
-    pricesByTaxClass(lnPrices, cart)
+    val mainPrices = mainItemPrices(cart)
+    pricesByTaxClass(mainPrices, cart)
   }
 
   def allPricesByTaxClass[T: TaxSystem](cart: CartBase[T]): Map[T, Long] = {
@@ -39,9 +39,9 @@ trait PriceCalculations {
   def cheapestTaxClass[T: TaxSystem](cart: CartBase[T])(implicit ord: Ordering[TaxRate]): Option[T] = {
     import ord.mkOrderingOps
 
-    val lnPrices = linePrices(cart)
+    val mainPrices = mainItemPrices(cart)
     val taxSystem = implicitly[TaxSystem[T]]
-    val ts: Seq[T] = lnPrices.collect {
+    val ts: Seq[T] = mainPrices.collect {
       case Right(prices) => prices.keys
     }.flatten
 
@@ -55,10 +55,9 @@ trait PriceCalculations {
     }
   }
 
-  private def linePrices[T: TaxSystem](cart: CartBase[T]): Seq[PriceResult[T]] = {
+  private def mainItemPrices[T: TaxSystem](cart: CartBase[T]): Seq[PriceResult[T]] = {
     val lines: Seq[CartContentItem[_, T]] = cart.contents.filter {
-      case CartContentItem(Line(_, _), _) => true
-      case _                              => false
+      case CartContentItem(_, _, isMainItem) => isMainItem
     }
     lines map { _.results }
   }

@@ -18,6 +18,7 @@ class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount, fallbackTaxC
     Right(Map(taxClass -> (-1 * priceable.amount)))
   }
 
+  override def isMainItem: Boolean = false
 }
 
 // TODO Fixed discounts with distributed tax classes, or a fixed tax class
@@ -37,4 +38,5 @@ class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount)(implicit val rou
     Right(prices)
   }
 
+  override def isMainItem: Boolean = false
 }
