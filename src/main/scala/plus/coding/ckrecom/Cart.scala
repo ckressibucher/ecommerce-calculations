@@ -8,6 +8,13 @@ import scala.collection.immutable.{Map, Seq}
 
 object Cart {
 
+  /** A type used for calculation results. It holds the information of:
+    *
+    * @param sum The total sum of all items of a given tax class
+    * @param taxAmount The calculated tax amount for this class
+    */
+  case class TaxClassSumAndTaxAmount(sum: Long, taxAmount: Long)
+
   /** Builds a cart from a sequence of not-yet-calculated items (`CartItemPre` instances),
     * and tax price mode. This is the recommended *main* method to build and calculate
     * a cart.
@@ -64,7 +71,12 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
 
   val mode: PriceMode.Value
 
-  def taxes(rounding: RoundingMode = RoundingMode.HALF_UP): TaxTotals[T] = {
+  /** Returns a map from tax class `T` to a tuple holding the sum price and the tax amount.
+    *
+    * The sum price is the sum of all prices of this tax class `T` in the cart's price mode.
+    * The tax amount is the amount of taxes calculated based on the tax class and the price sum.
+    */
+  def taxes(rounding: RoundingMode = RoundingMode.HALF_UP): Map[T, Cart.TaxClassSumAndTaxAmount] = {
     allPricesByTaxClass(this) map {
       case (taxCls, price) =>
         val rate = taxSystem.rate(taxCls)
@@ -72,11 +84,17 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
           case PriceMode.PRICE_GROSS => rate.taxValueFromGross(price)
           case PriceMode.PRICE_NET   => rate.taxValue(price)
         }
-        (taxCls, newPrice.setScale(0, rounding).longValue())
+        (taxCls, Cart.TaxClassSumAndTaxAmount(price, newPrice.setScale(0, rounding).longValue()))
     }
   }
 
-  /** Calculates the grand total of the cart.
+  def taxSum(roundingMode: RoundingMode = RoundingMode.HALF_UP): Long = {
+    taxes(roundingMode).foldLeft(0L) {
+      case (acc, (_, Cart.TaxClassSumAndTaxAmount(_, taxAmount))) => acc + taxAmount
+    }
+  }
+
+  /** Calculates the grand total of the cart, in the given price mode.
     */
   def grandTotal(): Long = {
     val itemSums = for {
@@ -87,6 +105,20 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
       }
     } yield prices
     itemSums.sum
+  }
+
+  def netTotal(roundingMode: RoundingMode = RoundingMode.HALF_UP): Long = {
+    mode match {
+      case PriceMode.PRICE_NET => grandTotal()
+      case PriceMode.PRICE_GROSS => grandTotal() - taxSum(roundingMode)
+    }
+  }
+
+  def grossTotal(roundingMode: RoundingMode = RoundingMode.HALF_UP): Long = {
+    mode match {
+      case PriceMode.PRICE_NET => grandTotal() + taxSum(roundingMode)
+      case PriceMode.PRICE_GROSS => grandTotal()
+    }
   }
 }
 

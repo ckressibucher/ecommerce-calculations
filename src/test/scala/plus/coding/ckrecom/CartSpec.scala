@@ -38,6 +38,54 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
     cart.grandTotal() should be(100L)
   }
 
+  it should "calculate the gross total from net mode" in {
+    type T = DefaultTaxClass
+    implicit val taxSystem = DefaultTaxSystem
+
+    val product = SimpleProduct[T](price = "100", taxCls10Pct)
+    val prices: Map[T, Long] = Map(taxCls10Pct -> 100L)
+    val item = CartContentItem(Line(product, new BigDecimal("1")), Right(prices), isMainItem = true)
+    val cart = Cart(PriceMode.PRICE_NET, List(item))
+
+    cart.grossTotal() should be(110L)
+  }
+
+  it should "calculate the gross total from gross mode" in {
+    type T = DefaultTaxClass
+    implicit val taxSystem = DefaultTaxSystem
+
+    val product = SimpleProduct[T](price = "100", taxCls10Pct)
+    val prices: Map[T, Long] = Map(taxCls10Pct -> 110L)
+    val item = CartContentItem(Line(product, new BigDecimal("1")), Right(prices), isMainItem = true)
+    val cart = Cart(PriceMode.PRICE_GROSS, List(item))
+
+    cart.grossTotal() should be(110L)
+  }
+
+  it should "calculate the net total from gross mode" in {
+    type T = DefaultTaxClass
+    implicit val taxSystem = DefaultTaxSystem
+
+    val product = SimpleProduct[T](price = "100", taxCls10Pct)
+    val prices: Map[T, Long] = Map(taxCls10Pct -> 110L)
+    val item = CartContentItem(Line(product, new BigDecimal("1")), Right(prices), isMainItem = true)
+    val cart = Cart(PriceMode.PRICE_GROSS, List(item))
+
+    cart.netTotal() should be(100L)
+  }
+
+  it should "calculate the net total from net mode" in {
+    type T = DefaultTaxClass
+    implicit val taxSystem = DefaultTaxSystem
+
+    val product = SimpleProduct[T](price = "100", taxCls10Pct)
+    val prices: Map[T, Long] = Map(taxCls10Pct -> 100L)
+    val item = CartContentItem(Line(product, new BigDecimal("1")), Right(prices), isMainItem = true)
+    val cart = Cart(PriceMode.PRICE_NET, List(item))
+
+    cart.netTotal() should be(100L)
+  }
+
   it should "return a map of taxes by tax class" in {
     type T = DefaultTaxClass
     implicit val taxSystem = DefaultTaxSystem
@@ -66,7 +114,9 @@ class CartSpec extends FlatSpec with Matchers with CartTestHelper {
 
     val cart = Cart(PriceMode.PRICE_NET, List(itemA, itemB, itemC, discountItem))
 
-    val taxMap = cart.taxes()
+    val taxMap: Map[T, Long] = cart.taxes().map {
+      case (taxCls, Cart.TaxClassSumAndTaxAmount(sum, amnt)) => (taxCls, amnt)
+    }
     taxMap.get(taxCls5Pct) should be(Some(50 - 5)) // itemB - discount
     taxMap.get(taxCls10Pct) should be(Some(100 - 10)) // itemA - discount
     taxMap.get(taxFree) should be(Some(0))
