@@ -4,6 +4,7 @@ package impl
 import plus.coding.ckrecom.impl.Priceable._
 
 import scala.collection.immutable.Seq
+import java.math.{BigDecimal, RoundingMode}
 
 /** A helper for price calculations.
   */
@@ -16,7 +17,9 @@ trait PriceCalculations {
   }
 
   def allPricesByTaxClass[T: TaxSystem](cart: CartBase[T]): Map[T, Long] = {
-    val priceResults = cart.contents map { _.results }
+    val priceResults = cart.contents map {
+      _.results
+    }
     pricesByTaxClass(priceResults, cart)
   }
 
@@ -35,6 +38,37 @@ trait PriceCalculations {
     }
   }
 
+  /**
+    * Splits the given price into parts, corresponding to the given `distributionKey`.
+    * Uses delta rounding to produce integer values (of type `Long`)
+    *
+    * @param distributionKey A map of tax classes to a value. The values of all classes define
+    *                        the distribution, their sum can be anything.
+    *                        Negative values are filtered out of this map.
+    *                        If the remaining map is empty, an empty map is returned.
+    * @return An empty map (if the given `distributionMap` is empty or only contains zeros or negative values),
+    *         or a map like the given distribution key -- without zero or negative values --, but the sum
+    *         of all values are equal to the given `price`.
+    */
+  def distributeByTaxClass[T](price: Long, distributionKey: Map[T, Long]): Map[T, Long] = {
+    val newDistMap = distributionKey.filter(_._2 > 0)
+    val distSum = newDistMap.foldLeft(new BigDecimal(0L)) {
+      case (acc, (_, v)) if v > 0 => acc.add(new BigDecimal(v))
+    }
+    // for simplicity, we use BigDecimals to do decimal calculations. Performance could
+    // probably be improved by using Integer divisions and modulo operations.
+    val priceBig = new BigDecimal(price)
+    val distributed = newDistMap.foldLeft((Map[T, Long](), new BigDecimal(0))) {
+      case ((accMap, delta), (taxCls, amnt)) =>
+        val amntBig = new BigDecimal(amnt)
+        val preResult = priceBig.multiply(amntBig).setScale(30).divide(distSum, RoundingMode.HALF_EVEN)
+                            .add(delta)
+        val rounded = preResult.setScale(0, RoundingMode.HALF_EVEN)
+        (accMap.updated(taxCls, rounded.longValue()), preResult.subtract(rounded))
+    }
+    distributed._1
+  }
+
   // TODO should we exclude free tax somehow?
   def cheapestTaxClass[T: TaxSystem](cart: CartBase[T])(implicit ord: Ordering[TaxRate]): Option[T] = {
     import ord.mkOrderingOps
@@ -48,7 +82,7 @@ trait PriceCalculations {
     val init: Option[T] = None
     (init /: ts) {
       case (None, tcls) => Some(tcls)
-      case (acc @ Some(accCls), tcls) =>
+      case (acc@Some(accCls), tcls) =>
         val rateAcc = taxSystem.rate(accCls)
         val rateNew = taxSystem.rate(tcls)
         if (rateAcc < rateNew) acc else Some(tcls)
@@ -59,6 +93,8 @@ trait PriceCalculations {
     val lines: Seq[CartContentItem[_, T]] = cart.contents.filter {
       case CartContentItem(_, _, isMainItem) => isMainItem
     }
-    lines map { _.results }
+    lines map {
+      _.results
+    }
   }
 }

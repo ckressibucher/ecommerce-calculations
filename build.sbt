@@ -22,7 +22,8 @@ scalacOptions := Seq(
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-    "org.scalatest"     %% "scalatest" 	     			   % "2.2.6" % "test"
+    "org.scalatest"     %% "scalatest" 	     			   % "2.2.6" % "test",
+    "org.scalacheck"    %% "scalacheck"              % "1.12.5" % "test"
     //"javax.money"       % "money-api"                % "1.0",
     //"org.javamoney"     % "moneta"                   % "1.1" % "test"
     //"org.joda"          % "joda-money"       % "0.11"
@@ -33,5 +34,4 @@ libraryDependencies ++= Seq(
 )
 
 initialCommands in console := """
-import javax.money._
 """
