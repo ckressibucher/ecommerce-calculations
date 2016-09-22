@@ -8,8 +8,6 @@ package object ckrecom {
     val PRICE_NET, PRICE_GROSS = Value
   }
 
-  type TaxTotals[T] = Map[T, Long]
-
   /** The result of a price calculation.
     *
     * This encodes:
@@ -21,7 +19,7 @@ package object ckrecom {
     * represent a useful amount of money, and should thus be integral numbers
     * (representing the smallest unit of the currency).
     */
-  type PriceResult[T] = Either[String, TaxTotals[T]]
+  type PriceResult[T] = Either[String, Map[T, Long]]
 
   /** @tparam P The "priceable" thing that should be put into the cart
     * @tparam T The tax class type

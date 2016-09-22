@@ -28,7 +28,7 @@ object Cart {
         c.addContent(CartContentItem(item.priceable, prices, item.isMainItem))
     }
     validate(cart) match {
-      case Nil  => Right(cart)
+      case Nil  => Right(cart) // TODO the result is has no errors, so `CartContentItem.results` could be simplified in the final result
       case errs => Left(errs)
     }
   }

@@ -7,6 +7,8 @@ package plus.coding.ckrecom
   * The resulting prices are later used as the
   * base for further calculations like discounts or taxes.
   *
+  * TODO this should be a trait instead of an abstract class...
+  *
   * @tparam P The "priceable" thing that should be put into the cart
   * @tparam T The tax class type
   */
