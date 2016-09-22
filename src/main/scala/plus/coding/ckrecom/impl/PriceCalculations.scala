@@ -11,7 +11,7 @@ import java.math.{BigDecimal, RoundingMode}
 trait PriceCalculations {
 
   /** Analyzes the final prices of all `Line` items, and builds a map TaxClass -> Summed amounts */
-  def linePricesByTaxClass[T: TaxSystem](cart: CartBase[T]): Map[T, Long] = {
+  def mainItemPricesByTaxClass[T: TaxSystem](cart: CartBase[T]): Map[T, Long] = {
     val mainPrices = mainItemPrices(cart)
     pricesByTaxClass(mainPrices, cart)
   }
@@ -61,32 +61,12 @@ trait PriceCalculations {
     val distributed = newDistMap.foldLeft((Map[T, Long](), new BigDecimal(0))) {
       case ((accMap, delta), (taxCls, amnt)) =>
         val amntBig = new BigDecimal(amnt)
-        val preResult = priceBig.multiply(amntBig).setScale(30).divide(distSum, RoundingMode.HALF_EVEN)
+        val preResult = priceBig.multiply(amntBig).setScale(15).divide(distSum, RoundingMode.HALF_EVEN)
                             .add(delta)
         val rounded = preResult.setScale(0, RoundingMode.HALF_EVEN)
         (accMap.updated(taxCls, rounded.longValue()), preResult.subtract(rounded))
     }
     distributed._1
-  }
-
-  // TODO should we exclude free tax somehow?
-  def cheapestTaxClass[T: TaxSystem](cart: CartBase[T])(implicit ord: Ordering[TaxRate]): Option[T] = {
-    import ord.mkOrderingOps
-
-    val mainPrices = mainItemPrices(cart)
-    val taxSystem = implicitly[TaxSystem[T]]
-    val ts: Seq[T] = mainPrices.collect {
-      case Right(prices) => prices.keys
-    }.flatten
-
-    val init: Option[T] = None
-    (init /: ts) {
-      case (None, tcls) => Some(tcls)
-      case (acc@Some(accCls), tcls) =>
-        val rateAcc = taxSystem.rate(accCls)
-        val rateNew = taxSystem.rate(tcls)
-        if (rateAcc < rateNew) acc else Some(tcls)
-    }
   }
 
   private def mainItemPrices[T: TaxSystem](cart: CartBase[T]): Seq[PriceResult[T]] = {

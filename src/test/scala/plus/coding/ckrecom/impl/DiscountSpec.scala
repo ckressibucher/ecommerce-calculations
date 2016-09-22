@@ -15,11 +15,15 @@ class DiscountSpec extends FlatSpec with Matchers with CartTestHelper {
 
   "The FixedDiscount calculator" should "subtract a fixed amount" in {
     implicit val taxsystem = taxSystemDefault
-    val fixedDisc = Priceable.FixedDiscount("ten-less", bigDec("10"))
-    val calculator = new FixedDiscountCalc(fixedDisc, taxFree)
+    type T = DefaultTaxClass
+    // need a "main item" with price > 0
+    val line = Line(SimpleProduct("100", taxCls10Pct), 1)
+    val mainItems = new LineCalc(line) :: new LineCalc(Line(SimpleProduct("50", taxFree), 1)) :: Nil
+    val fixedDisc = Priceable.FixedDiscount("3-less", bigDec("3"))
+    val calculator = new FixedDiscountCalc[T](fixedDisc)
 
-    val cart = Cart(PriceMode.PRICE_NET)
-    calculator.finalPrices(cart) should be(Right(Map(taxFree -> -10L)))
+    val cart = Cart.fromItems[CartItemCalculator[_, T], T](mainItems, PriceMode.PRICE_NET).right.get
+    calculator.finalPrices(cart) should be(Right(Map(taxCls10Pct -> -2L, taxFree -> -1l)))
   }
 
   "The PercentageDiscount calculator" should "apply percentage prices per tax class" in {

@@ -95,7 +95,7 @@ object UsageExample extends App {
       val fixedDiscount = FixedDiscount("20 dollar less", 2000)
 
       Seq(
-        new FixedDiscountCalc[TaxCls](fixedDiscount, TaxSystem.FreeTax),
+        new FixedDiscountCalc[TaxCls](fixedDiscount),
         new PctDiscountCalc(percentageDiscount))
     }
   }
