@@ -23,7 +23,7 @@ class LineCalc[T: TaxSystem, P](val line: Line[T, P])
     case None => Left("The product has no price")
   }
 
-  def finalPrices(c: CartBase[T]): PriceResult[T] = {
+  def finalPrices(c: CartTrait[T]): PriceResult[T] = {
     val unitPrice: Either[String, BigDecimal] = c.mode match {
       case PriceMode.PRICE_NET =>
         optionPriceToEither( line.product.netPrice(line.qty) )

@@ -1,40 +1,38 @@
 package plus.coding.ckrecom
 package impl
 
-import plus.coding.ckrecom.impl.Priceable._
-
-import scala.collection.immutable.Seq
+import scala.collection.immutable.{Seq, Map}
 import java.math.{BigDecimal, RoundingMode}
 
 /** A helper for price calculations.
   */
 trait PriceCalculations {
 
-  /** Analyzes the final prices of all `Line` items, and builds a map TaxClass -> Summed amounts */
-  def mainItemPricesByTaxClass[T: TaxSystem](cart: CartBase[T]): Map[T, Long] = {
-    val mainPrices = mainItemPrices(cart)
-    pricesByTaxClass(mainPrices, cart)
-  }
-
-  def allPricesByTaxClass[T: TaxSystem](cart: CartBase[T]): Map[T, Long] = {
-    val priceResults = cart.contents map {
-      _.results
-    }
-    pricesByTaxClass(priceResults, cart)
-  }
-
-  /** Sums up the (successful calculated) prices by tax class.
+  /** Analyzes the final prices of all successful `Line` items (= "main" items),
+    * and builds a map TaxClass -> Summed amounts
     */
-  def pricesByTaxClass[T: TaxSystem](priceResults: Seq[PriceResult[T]], cart: CartBase[T]): Map[T, Long] = {
+  def mainItemPricesByTaxClass[T: TaxSystem](cart: CartTrait[T]): Map[T, Long] = {
+    val mainPrices = mainItemPrices(cart)
+    pricesByTaxClass(mainPrices)
+  }
+
+  def allPricesByTaxClass[T: TaxSystem](cart: CartTrait[T]): Map[T, Long] = {
+    val priceResults = cart.contentPrices
+    pricesByTaxClass(priceResults)
+  }
+
+  /** Sums up the prices by tax class.
+    */
+  def pricesByTaxClass[T: TaxSystem](priceResults: Seq[Map[T, Long]]): Map[T, Long] = {
     val init = Map[T, Long]()
     (init /: priceResults) {
-      case (acc, Right(prices)) =>
-        prices.foldLeft(acc) {
+      case (acc, itemPriceMap) =>
+        // for each item, start with the (main) acc map, and add its own values.
+        (acc /: itemPriceMap) {
           case (accLine, (taxCls, amnt)) =>
             val current = accLine.getOrElse(taxCls, 0L)
             accLine.updated(taxCls, current + amnt)
         }
-      case (acc, _) => acc
     }
   }
 
@@ -62,19 +60,16 @@ trait PriceCalculations {
       case ((accMap, delta), (taxCls, amnt)) =>
         val amntBig = new BigDecimal(amnt)
         val preResult = priceBig.multiply(amntBig).setScale(15).divide(distSum, RoundingMode.HALF_EVEN)
-                            .add(delta)
+          .add(delta)
         val rounded = preResult.setScale(0, RoundingMode.HALF_EVEN)
         (accMap.updated(taxCls, rounded.longValue()), preResult.subtract(rounded))
     }
     distributed._1
   }
 
-  private def mainItemPrices[T: TaxSystem](cart: CartBase[T]): Seq[PriceResult[T]] = {
-    val lines: Seq[CartContentItem[_, T]] = cart.contents.filter {
-      case CartContentItem(_, _, isMainItem) => isMainItem
-    }
-    lines map {
-      _.results
+  private def mainItemPrices[T: TaxSystem](cart: CartTrait[T]): Seq[Map[T, Long]] = {
+    cart.contentItems collect {
+      case SuccessItem(_, priceResults, true) => priceResults
     }
   }
 }

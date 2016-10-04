@@ -24,8 +24,17 @@ package object ckrecom {
   /** @tparam P The "priceable" thing that should be put into the cart
     * @tparam T The tax class type
     */
-  case class CartContentItem[P, T](priceable: P, results: PriceResult[T], isMainItem: Boolean)
+  sealed trait CartContentItem[P, T] {
+    val priceable: P
+    val isMainItem: Boolean
+  }
 
-  type CartResult[T] = Either[Seq[String], CartBase[T]]
+  case class FailedItem[P, T](priceable: P, error: String, isMainItem: Boolean)
+    extends CartContentItem[P, T]
+
+  case class SuccessItem[P, T](priceable: P, priceResults: Map[T, Long], isMainItem: Boolean)
+    extends CartContentItem[P, T]
+
+  type CartResult[T] = Either[InterimCart[T], SuccessCart[T]]
 
 }

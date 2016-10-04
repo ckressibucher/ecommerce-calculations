@@ -13,7 +13,7 @@ import scala.collection.immutable._
 class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount)
     extends CartItemCalculator[FixedDiscount, T] with PriceCalculations {
 
-  def finalPrices(c: CartBase[T]): PriceResult[T] = {
+  def finalPrices(c: CartTrait[T]): PriceResult[T] = {
     val discPrice = -1 * priceable.amount
     Right(distributeByTaxClass(discPrice, mainItemPricesByTaxClass(c)))
   }
@@ -24,7 +24,7 @@ class FixedDiscountCalc[T: TaxSystem](val priceable: FixedDiscount)
 class PctDiscountCalc[T: TaxSystem](val priceable: PctDiscount)(implicit val rounding: Rounding)
     extends CartItemCalculator[PctDiscount, T] with PriceCalculations {
 
-  def finalPrices(c: CartBase[T]): PriceResult[T] = {
+  def finalPrices(c: CartTrait[T]): PriceResult[T] = {
     val productPricesByTaxClass = mainItemPricesByTaxClass(c)
 
     val prices = productPricesByTaxClass map {

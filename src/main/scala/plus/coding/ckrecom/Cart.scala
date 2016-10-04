@@ -10,7 +10,7 @@ object Cart {
 
   /** A type used for calculation results. It holds the information of:
     *
-    * @param sum The total sum of all items of a given tax class
+    * @param sum       The total sum of all items of a given tax class
     * @param taxAmount The calculated tax amount for this class
     */
   case class TaxClassSumAndTaxAmount(sum: Long, taxAmount: Long)
@@ -19,35 +19,25 @@ object Cart {
     * and tax price mode. This is the recommended *main* method to build and calculate
     * a cart.
     *
+    * @return Either a successfully calculated cart ([[SuccessCart]]) or an [[InterimCart]] with errors.
     */
-  def fromItems[T <: CartItemCalculator[_, U], U: TaxSystem](items: Seq[T], mode: PriceMode.Value)(implicit mc: MathContext): CartResult[U] = {
-    val initCart = new Cart(mode, Seq.empty)
+  def fromItems[T <: CartItemCalculator[_, U], U: TaxSystem](items: Seq[T], mode: PriceMode.Value)
+                                                            (implicit mc: MathContext): CartResult[U] = {
+    val initCart = InterimCart(mode, Seq.empty)
     val cart = (initCart /: items) {
-      case (c: Cart[U], item: CartItemCalculator[_, _]) =>
-        val prices = item.finalPrices(c)
-        c.addContent(CartContentItem(item.priceable, prices, item.isMainItem))
+      case (c: InterimCart[U], item: CartItemCalculator[_, _]) =>
+        val calculatedItem: CartContentItem[_, U] = item.finalPrices(c) match {
+          case Left(err) => FailedItem(item.priceable, err, item.isMainItem)
+          case Right(priceMap) => SuccessItem(item.priceable, priceMap, item.isMainItem)
+        }
+        c.addContent(calculatedItem)
     }
-    validate(cart) match {
-      case Nil  => Right(cart) // TODO the result is has no errors, so `CartContentItem.results` could be simplified in the final result
-      case errs => Left(errs)
-    }
-  }
-
-  /** Checks if the cart contains failed price calculations.
-    *
-    * Returns a list of errors (or an empty list if the cart is valid).
-    */
-  def validate[T](cart: CartBase[T]): Seq[String] = {
-    val result = Seq.empty[String]
-    (result /: cart.contents) {
-      case (errs, CartContentItem(_, Right(_), _)) => errs
-      case (errs, CartContentItem(_, Left(e), _))  => e +: errs
-    }
+    cart.validate
   }
 
   /** Returns a string describing the contents of this object.
     */
-  def debugString(cart: CartBase[_]): String = {
+  def debugString(cart: SuccessCart[_]): String = {
     val title = "Debugging cart:\n==============="
     val pMode = "Price mode: " ++ cart.mode.toString()
     val contentStr = ("contents:\n---------\n" /: cart.contents) {
@@ -62,12 +52,11 @@ object Cart {
 
 }
 
-abstract class CartBase[T: TaxSystem] extends PriceCalculations {
+sealed trait CartTrait[T] {
+  self: PriceCalculations =>
 
   implicit val mc: MathContext
-  val taxSystem = implicitly[TaxSystem[T]]
-
-  val contents: Seq[CartContentItem[_, T]] = Seq.empty
+  implicit val taxSystem: TaxSystem[T]
 
   val mode: PriceMode.Value
 
@@ -76,15 +65,26 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
     * The sum price is the sum of all prices of this tax class `T` in the cart's price mode.
     * The tax amount is the amount of taxes calculated based on the tax class and the price sum.
     */
+  def totalsByTaxClass: Map[T, Long] = allPricesByTaxClass(this)
+
+  /** Returns the prices of the 'successful' content items.
+    * In a [[SuccessCart]], all items are 'successful'.
+    */
+  def contentPrices: Seq[Map[T, Long]] = contentItems collect {
+    case SuccessItem(_, priceResults, _) => priceResults
+  }
+
+  def contentItems: Seq[CartContentItem[_, T]]
+
   def taxes(rounding: RoundingMode = RoundingMode.HALF_UP): Map[T, Cart.TaxClassSumAndTaxAmount] = {
-    allPricesByTaxClass(this) map {
+    totalsByTaxClass map {
       case (taxCls, price) =>
         val rate = taxSystem.rate(taxCls)
-        val newPrice = mode match {
+        val taxAmount = mode match {
           case PriceMode.PRICE_GROSS => rate.taxValueFromGross(price)
-          case PriceMode.PRICE_NET   => rate.taxValue(price)
+          case PriceMode.PRICE_NET => rate.taxValue(price)
         }
-        (taxCls, Cart.TaxClassSumAndTaxAmount(price, newPrice.setScale(0, rounding).longValue()))
+        (taxCls, Cart.TaxClassSumAndTaxAmount(price, taxAmount.setScale(0, rounding).longValue()))
     }
   }
 
@@ -97,13 +97,7 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
   /** Calculates the grand total of the cart, in the given price mode.
     */
   def grandTotal(): Long = {
-    val itemSums = for {
-      item <- contents
-      prices = item.results match {
-        case Left(_)                 => 0L
-        case Right(ps: Map[_, Long]) => ps.values.sum
-      }
-    } yield prices
+    val itemSums = for (item <- contentPrices) yield item.values.sum
     itemSums.sum
   }
 
@@ -122,13 +116,22 @@ abstract class CartBase[T: TaxSystem] extends PriceCalculations {
   }
 }
 
-/** The main cart class. Represents a cart with already calculated prices.
+/** A final cart by definition only contains successfully calculated items
   *
   */
-case class Cart[T: TaxSystem](
-  override val mode: PriceMode.Value,
-  override val contents: Seq[CartContentItem[_, T]] = Seq.empty)(implicit val mc: MathContext)
-    extends CartBase[T] {
+case class SuccessCart[T](override val mode: PriceMode.Value,
+                          contents: Seq[SuccessItem[_, T]])
+                         (implicit val mc: MathContext, val taxSystem: TaxSystem[T])
+  extends CartTrait[T] with PriceCalculations {
+
+  override def contentItems: Seq[CartContentItem[_, T]] = contents
+}
+
+/** A [[CartTrait]] implementation with items that may contain errors */
+case class InterimCart[T](override val mode: PriceMode.Value,
+                          contents: Seq[CartContentItem[_, T]] = Seq.empty)
+                         (implicit val mc: MathContext, val taxSystem: TaxSystem[T])
+  extends CartTrait[T] with PriceCalculations {
 
   /** Adds an item to the cart.
     *
@@ -136,7 +139,31 @@ case class Cart[T: TaxSystem](
     * validate the final cart instance whenever you
     * update a cart.
     */
-  def addContent(item: CartContentItem[_, T]): Cart[T] = {
+  def addContent(item: CartContentItem[_, T]): InterimCart[T] = {
     copy(contents = contents ++ Seq(item))
+  }
+
+  override def totalsByTaxClass: Map[T, Long] =
+    allPricesByTaxClass(this)
+
+  def contentItems: Seq[CartContentItem[_, T]] = contents
+
+  def successItems: Seq[SuccessItem[_, T]] = contents.collect {
+    case s: SuccessItem[_, T] => s
+  }
+
+  /** Returns the failed items */
+  def failedItems: Seq[FailedItem[_, T]] = contents.collect {
+    case f: FailedItem[_, T] => f
+  }
+
+  /** checks for failed items and returns either this instance, or a [[SuccessCart]]
+    */
+  def validate: Either[InterimCart[T], SuccessCart[T]] = {
+    if (failedItems.nonEmpty) {
+      Left(this)
+    } else {
+      Right(SuccessCart(mode, successItems))
+    }
   }
 }

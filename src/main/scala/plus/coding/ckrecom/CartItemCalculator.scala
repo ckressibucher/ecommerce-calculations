@@ -28,5 +28,5 @@ abstract class CartItemCalculator[P, T] {
 
   /** Calculates final prices for this item
     */
-  def finalPrices(cart: CartBase[T]): PriceResult[T]
+  def finalPrices(cart: CartTrait[T]): PriceResult[T]
 }
