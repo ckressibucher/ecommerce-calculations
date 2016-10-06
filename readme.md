@@ -27,18 +27,20 @@ This script can also be run, using `sbt test:run`.
 The recommended way to use this library is to define a *cart system* class which extends `BasicCartSystem`:
 
 
-    class MyCartSytem extends BasicCartSystem[MyTaxClass] {
-      override implicit val taxSystem: TaxSystem[MyTaxClass] = ???
-      override implicit val mc: MathContext = ???
+```scala
+class MyCartSytem extends BasicCartSystem[MyTaxClass] {
+  override implicit val taxSystem: TaxSystem[MyTaxClass] = ???
+  override implicit val mc: MathContext = ???
 
-      override val priceMode: PriceMode.Value = PriceMode.PRICE_GROSS
+  override val priceMode: PriceMode.Value = PriceMode.PRICE_GROSS
 
-      /** Define the calculation items to use
-        */
-      override def buildCalculationItems: Seq[CalcItem] = ???
-    }
-    
-    val result = new MyCartSystem.run
+  /** Define the calculation items to use
+    */
+  override def buildCalculationItems: Seq[CalcItem] = ???
+}
+
+val result = new MyCartSystem.run
+```
 
 This trait declares all the members needed to build a cart. An example implementation can be
 found in the test directory, in the `UsageExample` object.
