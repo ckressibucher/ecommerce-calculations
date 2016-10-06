@@ -61,13 +61,13 @@ object UsageExample extends App {
   val exampleProductsAndDiscounts = new CartSystem[TaxCls, Article] {
 
     // for some (java) BigDecimal calculations, we need a `MathContext` available
-    implicit val mc: MathContext = MathContext.DECIMAL128
+    override implicit val mc: MathContext = MathContext.DECIMAL128
 
     // This object implements a tax system for our `TaxCls`.
-    implicit val taxSystem: TaxSystem[TaxCls] = TaxSystem.DefaultTaxSystem
+    override implicit val taxSystem: TaxSystem[TaxCls] = TaxSystem.DefaultTaxSystem
 
     // The price mode defines how to interpret the price results of the cart items
-    val priceMode: PriceMode.Value = PriceMode.PRICE_GROSS
+    override val priceMode: PriceMode.Value = PriceMode.PRICE_GROSS
 
     /** The implementation that connects our custom [[Article]] class with
       * the data used by the library's [[Product]]
