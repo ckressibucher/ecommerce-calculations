@@ -137,7 +137,7 @@ case class InterimCart[T](override val mode: PriceMode.Value,
     * validate the final cart instance whenever you
     * update a cart.
     */
-  def addContent(item: CartContentItem[_, T]): InterimCart[T] = {
+  private[ckrecom] def addContent(item: CartContentItem[_, T]): InterimCart[T] = {
     copy(contents = contents ++ Seq(item))
   }
 
