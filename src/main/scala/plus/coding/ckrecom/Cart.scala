@@ -4,8 +4,6 @@ import java.math.{MathContext, RoundingMode}
 
 import plus.coding.ckrecom.impl.PriceCalculations
 
-import scala.collection.immutable.{Map, Seq}
-
 object Cart {
 
   /** A type used for calculation results. It holds the information of:

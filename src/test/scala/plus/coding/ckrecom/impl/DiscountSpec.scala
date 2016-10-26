@@ -3,7 +3,6 @@ package impl
 
 import org.scalatest._
 
-import scala.collection.immutable._
 import Priceable.Line
 import TaxSystem._
 

@@ -5,8 +5,6 @@ import java.math.BigDecimal
 
 import plus.coding.ckrecom.impl.Priceable._
 
-import scala.collection.immutable._
-
 /** Applies a fixed discount, using the cheapest tax class of any of the products in cart (or the fallbackTaxClass when no
   * products are in the cart).
   */

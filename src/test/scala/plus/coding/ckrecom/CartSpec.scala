@@ -2,8 +2,6 @@ package plus.coding.ckrecom
 
 import java.math.{BigDecimal, MathContext}
 
-import scala.collection.immutable._
-
 import org.scalatest._
 
 import plus.coding.ckrecom.impl.Priceable._

@@ -2,8 +2,6 @@ package plus.coding.ckrecom
 
 import java.math.BigDecimal
 
-import plus.coding.ckrecom.impl._
-
 import TaxSystem._
 
 /** Some utility values, methods and classes to test cart logic */

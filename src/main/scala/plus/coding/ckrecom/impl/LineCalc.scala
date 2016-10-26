@@ -6,8 +6,6 @@ import java.math.{BigDecimal, MathContext}
 import plus.coding.ckrecom.Product.ProductOps
 import plus.coding.ckrecom.impl.Priceable._
 
-import scala.collection.immutable._
-
 /** Calculate the final prices for an item line using a [[Product]] implementation
   */
 class LineCalc[T: TaxSystem, P](val line: Line[T, P])

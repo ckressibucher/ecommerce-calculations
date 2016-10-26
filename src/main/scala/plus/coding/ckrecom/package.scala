@@ -1,7 +1,5 @@
 package plus.coding
 
-import scala.collection.immutable._
-
 package object ckrecom {
 
   object PriceMode extends Enumeration {

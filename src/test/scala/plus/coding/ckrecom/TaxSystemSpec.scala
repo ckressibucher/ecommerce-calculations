@@ -23,14 +23,14 @@ class TaxSystemSpec extends FlatSpec with Matchers {
     val map = Map(tc1 -> 1, tc2 -> 2, tc3 -> 3, tc4 -> 4, tc5 -> 5)
     val imMap = immutable.Map(tc1 -> 1, tc2 -> 2, tc3 -> 3, tc4 -> 4, tc5 -> 5)
 
-    map.get(FreeTax) should be(Some(1))
-    imMap.get(FreeTax) should be(Some(1))
+    map(FreeTax) should be(1)
+    imMap(FreeTax) should be(1)
 
-    map.get(SimpleTax(2, 10)) should be(Some(2))
-    imMap.get(SimpleTax(2, 10)) should be(Some(2))
+    map(SimpleTax(2, 10)) should be(2)
+    imMap(SimpleTax(2, 10)) should be(2)
 
-    map.get(SimpleTax(5, 10)) should be(Some(5))
-    imMap.get(SimpleTax(5, 10)) should be(Some(5))
+    map(SimpleTax(5, 10)) should be(5)
+    imMap(SimpleTax(5, 10)) should be(5)
   }
 
 }

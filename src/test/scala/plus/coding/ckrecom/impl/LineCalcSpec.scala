@@ -2,9 +2,7 @@ package plus.coding.ckrecom
 package impl
 
 import org.scalatest._
-import java.math.MathContext
 import java.math.BigDecimal
-import scala.collection.immutable._
 
 import Priceable.Line
 import TaxSystem._

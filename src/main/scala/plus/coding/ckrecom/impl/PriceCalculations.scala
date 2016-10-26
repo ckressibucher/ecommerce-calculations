@@ -1,7 +1,6 @@
 package plus.coding.ckrecom
 package impl
 
-import scala.collection.immutable.{Seq, Map}
 import java.math.{BigDecimal, RoundingMode}
 
 /** A helper for price calculations.

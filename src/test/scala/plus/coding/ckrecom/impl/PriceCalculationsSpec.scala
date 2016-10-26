@@ -1,7 +1,7 @@
 package plus.coding.ckrecom.impl
 
 import org.scalatest._
-import org.scalatest.prop.{PropertyChecks, TableFor2}
+import org.scalatest.prop.PropertyChecks
 
 class PriceCalculationsSpec extends FlatSpec with Matchers with PropertyChecks {
 

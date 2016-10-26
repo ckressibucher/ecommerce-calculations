@@ -6,7 +6,6 @@ import java.math.{BigDecimal, MathContext}
 import plus.coding.ckrecom.impl.Priceable._
 import plus.coding.ckrecom.impl._
 
-import scala.collection.immutable._
 import scala.util.{Left, Right}
 
 /** Usage example how to create and calculate a cart.
